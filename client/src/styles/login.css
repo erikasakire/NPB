@@ -1,0 +1,35 @@
+.container{
+    position: relative;
+    max-width: 350px;
+    min-height: 270px;
+    margin: auto;
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 6px;
+    text-decoration: bold;
+    font-size: 1.2em;
+    color: white;
+    padding: 15px;
+}
+#loginForm{
+    display: block;
+    text-align: center;
+    margin: auto;
+    margin-top: calc(50% - (270px / 2));
+}
+
+label{
+    margin: 30px 10px 0px 5px;
+}
+
+input{
+    margin: 30px 10px 0px 5px;
+}
+
+legend{
+    padding-top: 5px;
+    text-align: center;
+}
+
+.button{
+    
+}

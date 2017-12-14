@@ -31,3 +31,27 @@ body {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
+
+#root {
+  height: 100%;
+}
+
+#sidebar {
+  width: 250px;
+  background: grey;
+}
+#main {
+  flex: 1;
+}
+.dflex{
+  display: flex;
+}
+.verticalFlex {
+  flex-direction: column;
+}
+.horizontalFlex {
+  flex-direction: row;
+}
+.flex {
+  flex: 1;
+}
