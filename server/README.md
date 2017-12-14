@@ -1,4 +1,4 @@
-<h1>NPB grupinio projekto server-side failai</b>
+<h1>NPB grupinio projekto server-side failai</h1>
 
 Tai yra pačių kurtas server-side "karkasas", kuris atlieka paprasčiausius route'inimo veiksmus.
 
