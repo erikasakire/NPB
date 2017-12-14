@@ -1,20 +1,21 @@
 .container{
-    position: relative;
+    position: absolute;
     max-width: 350px;
     min-height: 270px;
     margin: auto;
-    background: rgba(0, 0, 0, 0.6);
+    background: #192231;
     border-radius: 6px;
     text-decoration: bold;
     font-size: 1.2em;
     color: white;
-    padding: 15px;
+    transform: translate(-50%,-50%);    
+    top: 50%;
+    left: 50%;
 }
 #loginForm{
     display: block;
     text-align: center;
     margin: auto;
-    margin-top: calc(50% - (270px / 2));
 }
 
 label{
@@ -28,8 +29,4 @@ input{
 legend{
     padding-top: 5px;
     text-align: center;
-}
-
-.button{
-    
 }

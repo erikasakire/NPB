@@ -23,12 +23,12 @@ class WebRouter extends React.Component {
                       <h1 className="App-title">Welcome to React</h1>
                   </header>
                   <div class="dflex horizontalFlex flex">
-                    <div id="sidebar">
-                      <nav class="nav flex-column">
-                        <a class="nav-link"><Link to="/">Home</Link></a>
-                        <a class="nav-link" href="#"><Link to="/about">About</Link></a>
-                        <a class="nav-link" href="#"><Link to="/login">login</Link></a>              
-                        <hr/>
+                    <div id="sidebar" class="dflex verticalFlex">
+                      <nav class="nav flex-column flex">
+                        <a class="nav-link menu_button"><Link to="/">Home</Link></a>
+                        <a class="nav-link menu_button" href="#"><Link to="/about">About</Link></a>
+                        <a class="flex"></a>
+                        <a class="nav-link menu_button" href="#"><Link to="/login">Prisijungimas</Link></a>              
                       </nav>
                     </div>
                     <div id="main" class="flex">
