@@ -2,25 +2,26 @@ import React from 'react';
 
 class App extends React.Component {
   constructor(props) {
-    super(props)
+    super(props);
   
     this.handleSubmit = this.handleSubmit.bind(this);
   }
   
   handleSubmit(e){
     e.preventDefault();
-
+    
     let params = {};
     for(let i = 0; i < e.target.elements.length; i++){
-      params[e.target.elements[i].name] = e.target.elements[i].value
+      params[e.target.elements[i].name] = e.target.elements[i].value;
     }
 
-    fetch('http://localhost/isserver/api/padaliniai/login/' + params['username'] + '/' + params['password'], {
-      method: e.target.attributes['method'].value,
+    fetch('http://localhost:8081/api/padaliniai/login/' + params['username'] + '/' + params['password'], {
+      method: 'POST',
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
-      }
+      },
+      body: JSON.stringify({"jis" : "jonas", "ji": "ona"})
     })
     .then(response => response.json())
     .then(response => {

@@ -10,138 +10,123 @@ class Database {
      */
     public function __construct() {
         $this->dbc = new mysqli(DATABASE_SERVER, DATABASE_USERNAME, DATABASE_PASSWORD);
-        /** @var bool */
-        $setDatabase = $this->dbc->select_db(DATABASE_SCHEMA);
-        
-        if (isset($_POST['submit'])){
-            if ($lines = file($_POST['sql'])){
-                $query = '';
-                foreach ($lines as $line){
-                    //If line is comment or empty.
-                    if (substr($line, 0, 2) == "--" or $line == "" or $line == "\r\n"){
-                        continue;
-                    }
-
-                    $query .= trim($line);
-
-                    if (substr(trim($query), -1, 1) == ";"){
-                        $dbName;
-                        if (preg_match("/CREATE DATABASE `([a-zA-Z0-1_]+)`/", $query, $dbName)){
-                            $setNewDatabase = true;
-                        }
-                        if(!$this->dbc->query($query)){
-                            $error = isset($error) ? ($error . $this->dbc->error) : $this->dbc->error;
-                        }
-                        else {
-                            if (isset($setNewDatabase) and $setNewDatabase){
-                                $setNewDatabase = false;
-                                $setDatabase = $this->dbc->select_db($dbName[1]);
-                            }
-                        }
-                        $query = '';
-                    }
-                }
-            }
-        }
-
-        //Database schema does not exists.
-        //Creating new schema from file.
-        if (!$setDatabase){
-            ?>
-                <html>
-                    <head>
-                        <style>
-                            form{
-                                margin: auto;
-                                width: 400px;
-                                border: 1px solid black;
-                                padding: 5px;
-                            }
-                            div.labelInput{
-                                width: 100%;
-                            }
-                            div.labelInput > label,
-                            div.labelInput > input,
-                            div.labelInput > button {
-                                flex: 1;
-                                margin: 10px;
-                            }
-                            .flex {
-                                display: flex;
-                            }
-                        </style>
-                    </head>
-                    <form action="" method="post">
-                        <div class="labelInput flex" style="margin-bottom: 25px">
-                            <?php
-                                if (isset($error)){
-                                    echo ($error);
-                                }
-                            ?>
-                        </div>
-                        <div class="labelInput flex" style="margin-bottom: 25px">
-                            Duomenų bazės modelis nerastas.</br>
-                            Prašome pasirinkti duomenų bazės SQL failą.
-                        </div>
-                        <div class="labelInput">
-                            <label for="sql">Pasirinkite duomenų bazės sql kodą</label>
-                            <input type="file" name="sql" id="sql">
-                        </div>
-                        <div class="labelInput flex">
-                            <button type="submit" name="submit">Tęsti</button>
-                        </div>
-                    </form>
-                </html>
-            <?php
-        }
-        
+        $this->dbc->select_db(DATABASE_SCHEMA);
+     
+       return $this;
     }
+
 
     /**
-     * Function which performs sql query. Sql queries can use placeholders which is defined with :: symbols. Placeholders will be replaced with corresponding value from array. Placeholders are case-insensitive and every value replaced will be escaped.
-     * In example:
-     *      sql:
-     *          "SELECT * FROM table WHERE table.ID = ::ID"
-     *      params:
-     *          "ID" => 1
-     * 
-     * @param string $sql - sql string query. Can have placeholders for parameters from params array.
-     * @param array|null $params - parameters array to replace placeholders in sql string query.
-     * 
-     * @return mysqli_result|bool Returns false if operation was unsuccessful, mysqli_result if in 
-     * query was used SELECT or other data selection statements, true if INSERT, DELETE, UPDATE, etc
-     * opration which does not return data was successful.
+     * Calls query on database
+     * @param string $query - query to database string.
+     * @param array|null $params - params to query placeholders.
      */
-    public function query(string $sql, array $params = null){
-        if ($params){
-            //Replaces all placeholders that has values in params array.
-            foreach($params as $key => $value){
-                $pattern = '/::' . $key .'\\b/i';
-                $sql = preg_replace($pattern, $this->dbc->real_escape_string($value), $sql);
-            }
-        }
-        
-        $sqlError;
-        if (preg_match_all("/::([^(::)\s]+\b)?/", $sql, $sqlError)){
-            ?>
-                <html>
-                    <body>
-                        <div>
-                            <p>Cannot find values for these placeholders</p>
-                            <?php 
-                                foreach($sqlError[0] as $value){ 
-                                    echo("<p>$value</p>");
-                                }
-                            ?>
-                        </div>
-                    </body>
-                </html>
-            <?php
-        }
-        else {
-            return $this->dbc->query($sql);
-        }
+    public function query_String(string $query, array $params = null){
+        return $this->_query(Query::generate($query, $params));
     }
+    /**
+     * Calls query on database
+     * @param Query $query - query class instance with query string and params.
+     */
+    public function query_Query(Query $query){
+        return $this->_query($query);
+    }
+
+
+    /**
+     * Returns query data as array.
+     * @param string $query - query to database string.
+     * @param array|null $params - params to query placeholders.
+     * @return array query data as array.
+     */
+    public function array_String(string $query, array $params = null){
+        return $this->array_MysqliResult($this->query_String($query, $params));
+    }
+    /**
+     * Returns query data as array.
+     * @param Query $query - query class instance with query string and params.
+     * @return array query data as array.
+     */
+    public function array_Query(Query $query){
+        return $this->array_Query($query);
+    }
+    /**
+     * Returns query data as array.
+     * @param mysqli_result $result - result of query on database.
+     * @return array query data as array.
+     */
+    public function array_MysqliResult(mysqli_result $result = null){
+        if ($result == null){
+            return array();
+        }
+        $array = array();
+        while(($row = $result->fetch_assoc())){
+            array_push($array, $row);
+        }
+        return $array;
+    }
+
+    /** 
+     * Returns number of rows in query result.
+     * @param string $query - query to database string.
+     * @param array|null $params - params to query placeholders.
+     * @return int number of rows in result.
+     */    
+    public function numRows_String (string $query, array $params = null){
+        return $this->numRows_MysqliResult($this->query_String($query, $params));
+    }
+    /**
+     * Returns number of rows in query result.
+     * @param Query $query - query class instance with query string and params.
+     * @return int number of rows in result.
+     */
+    public function numRows_Query (Query $query){
+        return $this->numRows_MysqliResult($this->query_Query($query));
+    }
+    /**
+     * Returns number of rows in query result.
+     * @param mysqli_result $result - result of query on database.
+     * @return int number of rows in result.
+     */
+    public function numRows_MysqliResult (mysqli_result $result = null){
+        if ($result == null){
+            return 0;
+        }
+        return $result->num_rows;
+    }
+
+
+    /**
+     * Performs transaction on database.
+     * @param array $queries - array of Query class instances queries.
+     */
+    public function Transaction(array $queries){
+        if (empty($queries)){
+            return true;
+        }
+
+        do{
+            $this->dbc->autocommit(false);
+
+            foreach($queries as $q){
+                $result = $this->_query($q);
+                if (!$result){
+                    $erroc = true;
+                    break;
+                }
+            }
+            if(isset($erroc)){ break; }
+
+            $this->dbc->commit();
+            $this->dbc->autocommit(true);
+            return true;
+        }while(false);
+
+        $this->dbc->rollback();
+        $this->dbc->autocommit(true);
+        return false;
+    }
+
 
     /**
      * Returns last error message from mysqli class object.
@@ -149,6 +134,41 @@ class Database {
      */
     public function error(){
         return $this->dbc->error;
+    }
+
+    /**
+     * Performs query to database.
+     * @param Query $query - query class instance with query string and params.
+     * @return mysqli_result - If it's SELECTIVE query.
+     * @return bool - if it's DELETING, or UPDATING function. Posible too, when tere is error in query.
+     * @return mixed - Insert ID, if it's INSERT function.
+     */
+    private function _query(Query $query){
+        if($query->getParametizedQuery()){
+            $result = $this->dbc->query($query->getParametizedQuery());
+            /** Error in query */
+            if ($result == false){
+                return false;
+            }
+            /** Insert function successfull */
+            if ($this->dbc->insert_id != 0){
+                return $this->dbc->insert_id;
+            }
+            /** bool: DELETION or UPDATE queries was successfull */
+            /** mysqli_result: SELECTIVE query was succesfull */
+            return $result;
+        }
+        else{
+            return false;
+        }
+    }
+
+    /**
+     * Retruns connection to database.
+     * @return mysqli connection to databse.
+     */
+    public function _getConnection(){
+        return $this->dbc;
     }
 }
 ?>
