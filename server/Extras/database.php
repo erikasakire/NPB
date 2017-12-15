@@ -9,8 +9,10 @@ class Database {
      * Constructs class Database which is used to perform query calls to database.
      */
     public function __construct() {
-        $this->dbc = new mysqli(DATABASE_SERVER, DATABASE_USERNAME, DATABASE_PASSWORD, DATABASE_SCHEMA);
-        return $this;
+        $this->dbc = new mysqli(DATABASE_SERVER, DATABASE_USERNAME, DATABASE_PASSWORD);
+        $this->dbc->select_db(DATABASE_SCHEMA);
+     
+       return $this;
     }
 
 
