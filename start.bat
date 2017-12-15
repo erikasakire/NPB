@@ -11,10 +11,10 @@ del error
 
 cd ./client
 call npm install
-start npm run start
+start /min npm run start
 
 cd ../server
-start  php -S localhost:8081 api.php
+start /min php -S localhost:8081 api.php
 exit
 
 :ERROR
