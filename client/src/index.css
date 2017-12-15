@@ -1,7 +1,14 @@
+/*
+spalvos
+#494E68 STORMY (melsva)
+#98878F CLOUD (pilksva?)
+#985E6D SUNSET (rusva)
+#192231 EVENING (tamsiai pilka)
+*/
 body {
   margin: 0;
   padding: 0;
-  font-family: sans-serif;
+  font-family: 'Roboto', sans-serif;
 }
 .App {
   text-align: center;
@@ -13,7 +20,7 @@ body {
 }
 
 .App-header {
-  background-color: #222;
+  background-color: #494E68;
   height: 150px;
   padding: 20px;
   color: white;
@@ -30,4 +37,32 @@ body {
 @keyframes App-logo-spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
+}
+
+#root {
+  height: 100%;
+}
+
+#sidebar {
+  width: 200px;
+  background: #494E68;
+  font-size: 27px;
+}
+#main {
+  flex: 1;
+}
+.dflex{
+  display: flex;
+}
+.verticalFlex {
+  flex-direction: column;
+}
+.horizontalFlex {
+  flex-direction: row;
+}
+.flex {
+  flex: 1;
+}
+a{
+  color: #986e6d !important;
 }
