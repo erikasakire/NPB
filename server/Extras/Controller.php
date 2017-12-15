@@ -1,6 +1,7 @@
 <?php 
 
 include 'database.php';
+include 'Query.php';
 include 'Request.php';
 include 'Response.php';
 
@@ -72,7 +73,12 @@ class Controller {
         }
     }
 
-
+    /**
+     * Maps current url to method by checking templates.
+     * @param array $urls - url templates sorted by request method.
+     * @param array $urlParams - url line parameters separated by /.
+     * @param array $bodyParams - if request method is POST and has body values, they references in this array.
+     */
     private function _mapToMethod(array $urls, array $urlParams, array $bodyParams = null){
         foreach($urls as $url){
             $params = explode('/', trim($url['url'], ' /'));
