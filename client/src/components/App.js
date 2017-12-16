@@ -30,6 +30,16 @@ class App extends React.Component {
     })
   }
 
+  try(){
+    fetch('http://localhost:8081/api/padaliniai/visi/', {
+      method: 'GET'
+    })
+    .then(response => response.json())
+    .then(response => {
+      console.log(response);
+    })
+  }
+
   render() {
     return (
       <div className="App">
@@ -47,6 +57,7 @@ class App extends React.Component {
 
               <button type="submit" name="isSubmited">Prisijugti</button>
           </form>
+          <button onClick={this.try.bind(this)}>try</button>
         </div>
       </div>
     );
