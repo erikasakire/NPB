@@ -1,6 +1,13 @@
 <?php
 
 class Response{
+    public const OK             = 200;
+    public const NOT_MODIFIED   = 304;
+    public const BAD_REQUEST    = 400;
+    public const NOT_AUTHORIZED = 401;
+    public const FORBIDDEN      = 403;
+    public const NOT_FOUND      = 404;
+
     private $responseData;
     private $sent;
     private $skipEmptyParameters;
@@ -23,7 +30,7 @@ class Response{
     }
 
     /** Sends response back to cliet */
-    public function send(){
+    public function send($status = Response::OK){
         if ($this->skipEmptyParameters){
             $array = array();
             foreach($this->responseData as $key => $value){
@@ -35,6 +42,7 @@ class Response{
 
         if (!$this->sent){
             echo(json_encode($this->skipEmptyParameters ? $array : $this->responseData));
+            http_response_code($status);
             $this->sent = true;
         }
         else{
