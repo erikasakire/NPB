@@ -18,7 +18,7 @@ class Padaliniai extends Controller{
         parent::__construct($params, $urlParams, $type);
 
         $this->get('/visi', [$this, 'visiPadaliniai']);
-        $this->get('/:id', [$this,'PrekesPadalinyje']);
+        $this->get('/:id', [$this,'Padalinys']);
         $this->post('/prideti', [$this, 'PridetiNaujaPadalini']);
         $this->post('/redaguoti', [$this, 'RedaguotiEsamaPadalini']);
         $this->mapToMethod($this);
@@ -38,7 +38,7 @@ class Padaliniai extends Controller{
         $duom = $db->array_MysqliResult($duom);
         return $duom;
     }
-    public function PrekesPadalinyje(Request $req, Response $res){
+    public function Padalinys(Request $req, Response $res){
         $db = new Database();
         $id = isset($req->params['id']) ? $req->params['id'] : null;
         if ($id != null) {
@@ -119,7 +119,7 @@ class Padaliniai extends Controller{
                     "ilguma"=>$req->body['ilguma'],
                     "platuma"=>$req->body['platuma'],
                     "redaktorius"=>$req->body['redaktorius'],
-                    "rajonas"=>$req->body['rajonas'],
+                    "rajonas"=>$req->body['rajonas']
         ));
 
         if($result){
@@ -140,7 +140,7 @@ class Padaliniai extends Controller{
             `Pasto_kodas`=::pastokodas,
             `Ilguma`=::ilguma,
             `Platuma`=::platuma
-            WHERE ::invNumeris", array(
+            WHERE `Inventorinis_numeris`::invNumeris", array(
                 "miestas"=>$req->body['miestas'],
                 "salis"=>$req->body['salis'],
                 "regionas"->$req->body['regionas'],
@@ -151,7 +151,7 @@ class Padaliniai extends Controller{
                 "pastokodas"->$req->body['pastokodas'],
                 "ilguma"->$req->body['ilguma'],
                 "platuma"->$req->body['platuma'],
-                "invNumeris"->$req->body['invNumeris'],
+                "invNumeris"->$req->body['invNumeris']
         ));
 
         if($result){
