@@ -48,7 +48,7 @@ class Database {
      * @return array query data as array.
      */
     public function array_Query(Query $query){
-        return $this->array_Query($query);
+        return $this->array_MysqliResult($this->query_Query($query));
     }
     /**
      * Returns query data as array.
