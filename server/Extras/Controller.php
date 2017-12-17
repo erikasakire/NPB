@@ -134,7 +134,7 @@ class Controller {
      * @param string $url - url template to be able reference $method.
      * @param callable $method - method to call if url template matches current url.
      */
-    protected function get(string $url, callable $method){
+    protected function get(string $url, $method){
         array_push($this->get, array(
             "url" => $url,
             "method" => $method

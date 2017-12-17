@@ -78,7 +78,11 @@ class Query {
             //Replaces all placeholders that has values in params array.
             foreach($this->params as $key => $value){
                 $pattern = "/::$key\b/i";
+<<<<<<< HEAD
                 $this->parametizedQuery = preg_replace($pattern, '\'' .  $dbc->real_escape_string($value) . '\'', $this->parametizedQuery);
+=======
+                $this->parametizedQuery = preg_replace($pattern, '\'' . $dbc->real_escape_string($value) . '\'', $this->parametizedQuery);
+>>>>>>> master
             }
         }
         return $this->parametizedQuery;
