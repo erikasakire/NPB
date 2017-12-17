@@ -6,15 +6,11 @@ import { Route, Redirect } from 'react-router-dom';
 class PrivateRoute extends React.Component{
     render(){
         return <Route 
-            exact={this.props.exact}
-            path={this.props.path}
-            render={() => {
-                if (this.props.logged){
-                    return <this.props.component/>;
-                }
-                return <Redirect to={this.props.fallback}/>
-            }}
-        />
+                    exact={this.props.exact} 
+                    path={this.props.path}
+                    render={() => {return this.props.logged ? <this.props.component/> : <Redirect to={this.props.fallback}/>}}
+                />
+        
     }
 }
 
@@ -32,7 +28,7 @@ PrivateRoute.defaultProps = {
 export default connect(
     state => {
         return {
-            logged: state.logged != undefined
+            logged: state.login != null 
         };
     },
     null

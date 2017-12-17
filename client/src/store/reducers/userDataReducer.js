@@ -3,12 +3,11 @@ import {
     LOGOUT_USER
 } from '../actionTypeConstants';
 
-const userData = (state = [], action) => {
+const userData = (state = null, action) => {
     switch(action.type){
         case LOGIN_USER: {
-            return [
-                ...state,
-                {  
+            return Object.assign({}, state,
+                {
                     vardas: action.Vardas,
                     pavarde: action.Pavarde,
                     rangas: {
@@ -16,10 +15,10 @@ const userData = (state = [], action) => {
                         id: action.id
                     }
                 }
-            ]
+            );
         }
         case LOGOUT_USER: {
-            return undefined;
+            return null;
         }
         default:
             return state;

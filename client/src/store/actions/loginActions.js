@@ -6,7 +6,12 @@ import {
 export function login_user(data){
     return {
         type: LOGIN_USER,
-        key: data.key
+        key: data.key,
+        name: data.name,
+        Vardas: data.Vardas,
+        Pavarde: data.Pavarde,
+        rangas: data.Pareigos,
+        id: data.PareiguKodas
     };
 }
 

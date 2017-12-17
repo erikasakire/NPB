@@ -3,17 +3,17 @@ import {
     LOGOUT_USER
 } from '../actionTypeConstants';
 
-const accessControl = (state = [], action) => {
+const accessControl = (state = null, action) => {
     switch (action.type){
         case LOGIN_USER:
-            return [
-                ...state,
+            return Object.assign({}, state,
                 {
-                    accessKey: action.key
+                    accessKey: action.key,
+                    name: action.name
                 }   
-            ];
+            );
         case LOGOUT_USER:
-            return undefined;
+            return null;
         default: 
             return state;
     }

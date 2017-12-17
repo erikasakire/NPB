@@ -6,7 +6,6 @@ import { withRouter } from 'react-router-dom';
 /** Redux components */
 import { connect } from 'react-redux';
 import { login_user as accessControlLogin } from '../store/actions/loginActions';
-import { login_user as userDataLogin } from '../store/actions/userDataActions';
 
 /** Configuration imports */
 import config from '../config.json';
@@ -62,8 +61,9 @@ class Login extends React.Component{
             if(response == null){
                 return null;
             }
+            response.username = this.state.username;
+            console.log(response);
             this.props.loginAction(response);
-            this.props.userDateAction(response);
             this.props.history.push('/');
         })
 
@@ -119,16 +119,13 @@ export default withRouter(connect(
         return {
             loginAction: (data) => {
                 return dispatch(accessControlLogin({
-                            key: data.accessKey
+                            key: data.accessKey,
+                            name: data.username,
+                            Vardas: data.data.Vardas,
+                            Pavarde: data.data.Pavarde,
+                            Pareigos: data.data.Pareigos,
+                            PareiguKodas: data.data.PareiguKodas 
                         }));
-            },
-            userDateAction: (data) => {
-                return dispatch(userDataLogin({
-                    Vardas: data.Vardas,
-                    Pavarde: data.Pavarde,
-                    Pareigos: data.Pareigos,
-                    PareiguKodas: data.PareiguKodas                
-                }));
             }
         }
     }
