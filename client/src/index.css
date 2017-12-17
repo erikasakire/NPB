@@ -46,7 +46,7 @@ body {
 #sidebar {
   width: 200px;
   background: #494E68;
-  font-size: 27px;
+  font-size: 20px;
 }
 #main {
   flex: 1;
@@ -64,5 +64,5 @@ body {
   flex: 1;
 }
 a{
-  color: #986e6d !important;
+  color: white !important;
 }

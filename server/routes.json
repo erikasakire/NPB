@@ -1,4 +1,7 @@
 {
     "padaliniai" : "Padaliniai",
-    "uzsakymuvykdymas": "Uzsakymu_Vykdymas"
+    "uzsakymuvykdymas": "Uzsakymu_Vykdymas",
+    "Transporto_priemones": "Transporto_priemoniu_valdiklis",
+    "Uzsakymai": "Uzsakymu_valdiklis"
+
 }
