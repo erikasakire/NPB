@@ -1,0 +1,66 @@
+/** Norint naudoti šį failą reikia turėti VS Code papildinį Easy LESS **/
+
+@color-stormy: #494E68;
+@color-cloud: #98878F;
+@color-sunset: #985E6D;
+@color-evening: #192231;
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Roboto', sans-serif;
+}
+
+/** fast access properties **/
+.dflex {
+  display: flex;
+}
+.verticalFlex {
+  flex-direction: column;
+}
+.horizontalFlex {
+  flex-direction: row;
+}
+.flex {
+  flex: 1;
+}
+.fullHeight {
+  height: 100%;
+}
+.fullWidth {
+  width: 100%;
+}
+.textAlign-center {
+  text-align: center;
+}
+
+/** Style for exacts elements **/
+#entry {
+  /** fullscreen **/
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+#sidebar {
+  min-width: 250px;
+  max-width: 250px;
+  overflow: hidden;
+  background: @color-evening;
+  font-size: 20px;
+
+  .navTitle {
+    font-size: 52px;
+    color: @color-cloud;
+  }
+
+  a:hover{
+    color: @color-cloud;
+    background-color: @color-evening !important;
+
+  }
+}
+#main {
+  flex: 1;
+}
