@@ -27,4 +27,11 @@ class Request {
     public function addBody($key, $value){
         $this->body[$key] = $value;
     }
+
+    public function getBody($key){
+        if (isset($this->body[$key])){
+            return $this->body[$key];
+        }
+        return NULL;
+    }
 }

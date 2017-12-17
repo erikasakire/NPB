@@ -49,7 +49,7 @@ class Database {
      * @return array query data as array.
      */
     public function array_Query(Query $query){
-        return $this->array_Query($query);
+        return $this->array_MysqliResult($this->query_Query($query));
     }
     /**
      * Returns query data as array.
@@ -105,12 +105,12 @@ class Database {
         if (empty($queries)){
             return true;
         }
-
         do{
             $this->dbc->autocommit(false);
 
             foreach($queries as $q){
                 $result = $this->_query($q);
+                echo($this->error());
                 if (!$result){
                     $erroc = true;
                     break;

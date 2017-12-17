@@ -17,19 +17,24 @@ class Padaliniai extends Controller{
     public function __construct($params, $urlParams, $type) {
         parent::__construct($params, $urlParams, $type);
 
-        $this->get('/visi', [$this, 'visiPadaliniai']);
+        $this->get('/visi', [$this, 'visiPadaliniai']); 
+        $this->get('Darbuotojas/:id', [$this,'darbuotojoInformacija']);
         $this->get('/:id', [$this,'Padalinys']);
         $this->post('/prideti', [$this, 'PridetiNaujaPadalini']);
         $this->post('/redaguoti', [$this, 'RedaguotiEsamaPadalini']);
-        $this->mapToMethod($this);
+        $this->post('/salinti', [$this, 'PasalintiEsamaPadalini']);
+        $this->post('/atleisti', [$this, 'AtleidziameRedaktoriu']);
+        $this->post('/samdyti', [$this, 'PasamdytiDarbutuotoja']);
+        $this->mapToMethod();
     }
-
+ 
     public function visiPadaliniai(Request $req, Response $res){
         $db = new Database();
-        $duomenys = $db->array_String("SELECT * FROM padalinys");
+        $duomenys = $db->array_String("SELECT padalinys.*, asmuo.* FROM padalinys LEFT JOIN darbuotojas ON darbuotojas.Tabelio_nr = padalinys.Redaktorius LEFT JOIN asmuo ON asmuo.AsmensKodas = darbuotojas.Asmuo_AsmensKodas");
+        
         $res->addResponseData($duomenys, "data");
         $res->addResponseData($this->PadaliniuSalys(), "filtras");
-       
+        $res->addResponseData($this->Samdymui(), "samdyti");
         $res->send();
     }
     public function PadaliniuSalys(){
@@ -50,7 +55,7 @@ class Padaliniai extends Controller{
                 WHERE padalinio_produktas.Padalinys_Inventorinis_numeris = ::id", array(
                     "id" => $id
                 ));    
-               $dirbantys=$this->Dirbantys($id);   
+               $dirbantys=$this->Dirbantys($id); 
         }
 
         $duomenys = $db->array_MysqliResult($duomenys);
@@ -62,10 +67,10 @@ class Padaliniai extends Controller{
     public function Samdymui(){
         $db = new Database();
         $duomenys = $db->array_String("SELECT * FROM darbuotojas 
+        LEFT JOIN asmuo ON darbuotojas.Asmuo_AsmensKodas = asmuo.AsmensKodas
             WHERE darbuotojas.Tabelio_nr 
-            NOT IN (SELECT dirbapadalinyje.Darbuotojas_Tabelio_nr) 
-            FROM dirbapadalinyje ");
-        
+            NOT IN (SELECT dirbapadalinyje.Darbuotojas_Tabelio_nr FROM dirbapadalinyje)");
+        return $duomenys;
     }
     public function Dirbantys($id){
         $db = new Database();
@@ -108,23 +113,25 @@ class Padaliniai extends Controller{
                 ::ilguma, 
                 ::platuma, 
                 ::redaktorius)", array(
-                    "invNumeris"=>$req->body['invNumeris'],
-                    "salis"=>$req->body['salis'],
-                    "miestas"=>$req->body['miestas'],
-                    "regionas"=>$req->body['regionas'],
-                    "gatve"=>$req->body['gatve'],
-                    "pavadinimas"=>$req->body['pavadinimas'],
-                    "salisEN"=>$req->body['salisEN'],
-                    "pastokodas"=>$req->body['pastokodas'],
-                    "ilguma"=>$req->body['ilguma'],
-                    "platuma"=>$req->body['platuma'],
-                    "redaktorius"=>$req->body['redaktorius'],
-                    "rajonas"=>$req->body['rajonas']
+                    "invNumeris"=>$req->getBody('Inventorinis_numeris'),
+                    "salis"=>$req->getBody('Salis'),
+                    "miestas"=>$req->getBody('Miestas'),
+                    "regionas"=>$req->getBody('Regionas'),
+                    "gatve"=>$req->getBody('Gatve'),
+                    "pavadinimas"=>$req->getBody('padalinio_pavadinimas'),
+                    "salisEN"=>$req->getBody('salisEN'),
+                    "pastokodas"=>$req->getBody('Pasto_kodas'),
+                    "ilguma"=>$req->getBody('Ilguma'),
+                    "platuma"=>$req->getBody('Platuma'),
+                    "redaktorius"=>$req->getBody('Redaktorius'),
+                    "rajonas"=>$req->getBody('Rajonas')
         ));
-
+        echo($db->error());
         if($result){
-            $res->send();
+            http_response_code(200);
+            return $res->send();
         }
+        http_response_code(400);
     }
     public function RedaguotiEsamaPadalini (Request $req, Response $res){
         $db = new Database();
@@ -140,53 +147,89 @@ class Padaliniai extends Controller{
             `Pasto_kodas`=::pastokodas,
             `Ilguma`=::ilguma,
             `Platuma`=::platuma
-            WHERE `Inventorinis_numeris`::invNumeris", array(
-                "miestas"=>$req->body['miestas'],
-                "salis"=>$req->body['salis'],
-                "regionas"->$req->body['regionas'],
-                "rajonas"->$req->body['rajonas'],
-                "gatve"->$req->body['gatve'],
-                "pavadinimas"->$req->body['pavadinimas'],
-                "salisEN"->$req->body['salisEN'],
-                "pastokodas"->$req->body['pastokodas'],
-                "ilguma"->$req->body['ilguma'],
-                "platuma"->$req->body['platuma'],
-                "invNumeris"->$req->body['invNumeris']
+            WHERE `Inventorinis_numeris`= ::invNumeris", array(
+                  "invNumeris"=>$req->getBody('Inventorinis_numeris'),
+                  "salis"=>$req->getBody('Salis'),
+                  "miestas"=>$req->getBody('Miestas'),
+                  "regionas"=>$req->getBody('Regionas'),
+                  "gatve"=>$req->getBody('Gatve'),
+                  "pavadinimas"=>$req->getBody('padalinio_pavadinimas'),
+                  "salisEN"=>$req->getBody('salisEN'),
+                  "pastokodas"=>$req->getBody('Pasto_kodas'),
+                  "ilguma"=>$req->getBody('Ilguma'),
+                  "platuma"=>$req->getBody('Platuma'),
+                  "rajonas"=>$req->getBody('Rajonas')
         ));
-
         if($result){
             $res->send();
         }
     }
+    public function AtleidziameRedaktoriu (Request $req, Response $res){
+        $db = new Database();
+        $result = $db->query_String("DELETE FROM dirbapadalinyje WHERE Darbuotojas_Tabelio_nr = ::id", array(
+            "id"=>$req-getBody('Redaktorius')
+        ));
+    }
+    public function PasamdytiDarbutuotoja (Request $req, Response $res){
+        $db = new Database();
+        $result = $db->query_String("UPDATE dirbapadalinyje SET Darbuotojas_Tabelio_nr = ::darb 
+        WHERE Padalinys_Inventorinis_numeris = ::id",
+        array(
+            "darb"=>$req->getBody('Redaktorius'),
+            "id"=>$req->getBody('Inventorinis_numeris')
+        ));
+    }
     public function PasalintiEsamaPadalini (Request $req, Response $res){
         $db = new Database();
-        $result = $db->numRows_String("SELECT * FROM padalinys 
-        LEFT JOIN padalinio_produktas ON padalinys.Inventorinis_numeris = padalinio_produktas.Padalinys_Inventorinis_numeris WHERE padalinys.Inventorinis_numeris = ::invNumeris");
+        $result = $db->numRows_String("
+            SELECT * 
+            FROM padalinio_produktas 
+            LEFT JOIN padalinys ON padalinys.Inventorinis_numeris = padalinio_produktas.Padalinys_Inventorinis_numeris 
+            WHERE padalinys.Inventorinis_numeris = ::invNumeris", array(
+                "invNumeris" => $req->getBody('Inventorinis_numeris')
+            ));
         if($result){
+            http_response_code(400);
+            $res->addResponseData('Padalinyje yra ' . $result . ' prekių');
             $res->send();
         }
         else{
             $result = $db->Transaction(array(
                 Query::generate(
                     'DELETE FROM dirbapadalinyje WHERE Padalinys_Inventorinis_numeris = ::invNumeris', array(
-                        "invNumeris" => $req->body['invNumeris']
+                        "invNumeris" => $req->body['Inventorinis_numeris']
                     )),
                 Query::generate(
                     'DELETE FROM padalinys WHERE Inventorinis_numeris = ::invNumeris', array(
-                        "invNumeris" => $req->body['invNumeris']
+                        "invNumeris" => $req->body['Inventorinis_numeris']
                     )
                 )
             ));
 
             if ($result){
                 /** OK */
+                http_response_code(200);
                 $res->send();
             }
             else{
                 /** Error */
+                http_response_code(400);
+                $res->addResponseData('transakcijos erroras');                
                 $res->send();
             }
         }
+    }
+    public function darbuotojoInformacija(Request $req, Response $res){
+        $db = new Database();
+        $duomenys = $db->array_String("SELECT * FROM darbuotojas 
+                LEFT JOIN dirbapadalinyje ON darbuotojas.Tabelio_nr = dirbapadalinyje.Darbuotojas_Tabelio_nr 
+                LEFT JOIN asmuo ON asmuo.AsmensKodas = darbuotojas.Asmuo_AsmensKodas 
+                LEFT JOIN padalinys ON dirbapadalinyje.Padalinys_Inventorinis_numeris = padalinys.Inventorinis_numeris 
+                WHERE darbuotojas.Tabelio_nr = ::id", array(
+                    "id" => $req->params["id"]
+                ));
+        $res->addResponseData($duomenys, "data");
+        $res->send();
     }
 }
 
