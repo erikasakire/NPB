@@ -2,6 +2,15 @@
 
 class Transporto_priemoniu_valdiklis extends Controller {
 
+    public function __construct($params, $urlParams, $type) {
+        parent::__construct($params, $urlParams, $type);
+
+        $this->post('/sarasas', [$this, 'gauti_TP_sarasa']);
+        //$this->post('/login/:vardas/:pavare/', [$this, 'login']);
+
+        $this->mapToMethod($this);
+    }
+
     public function __construct($params, $type) {
         
     }

@@ -10,6 +10,7 @@ import './index.css';
 //import bootstrap from 'react-bootstrap';
 import App from './components/App';
 import Login from './components/Login'
+import Vehicles from './components/Vehicles'
 import logo from './logo.svg';
 
 
@@ -32,7 +33,7 @@ class WebRouter extends React.Component {
                       </nav>
                     </div>
                     <div id="main" class="flex">
-                      <Route exact path="/" component={App}/>
+                      <Route exact path="/" component={Vehicles}/>
                       <Route exact path="/login" component={Login}/>
                     </div>
                   </div>
