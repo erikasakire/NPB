@@ -327,7 +327,7 @@ INSERT INTO `padalinys` (`Inventorinis_numeris`, `Salis`, `Miestas`, `Regionas`,
 CREATE TABLE `produktas` (
   `Barkodas` int(11) NOT NULL,
   `Pavadinimas` varchar(50) NOT NULL,
-  `Vieneto_kaina` decimal(10,0) NOT NULL,
+  `Vieneto_kaina` DOUBLE NOT NULL,
   `Aprasymas` varchar(200) DEFAULT NULL,
   `Matavimo_vnt` varchar(45) DEFAULT NULL,
   `Gamintojas` varchar(45) NOT NULL,
