@@ -13,6 +13,8 @@ import App from '../components/App';
 import Login from '../components/Login';
 import Drivers from '../components/Drivers';
 import Logout from '../components/Logout';
+import Workers from '../components/Workers';
+import Orders from '../components/Orders';
 
 
 class Router extends React.Component {
@@ -35,6 +37,16 @@ class Router extends React.Component {
                                     Vairuotojai
                                 </Link>
                             </li>
+                            <li>
+                                <Link to='/workers'>
+                                    Darbuotojai
+                                </Link>
+                            </li>
+                            <li>
+                                <Link to='/orders'>
+                                    Užsakymai
+                                </Link>
+                            </li>
                             <li className="flex"/>
                             <li>
                                 { 
@@ -52,6 +64,8 @@ class Router extends React.Component {
 
                             <PrivateRoute exact path="/" component={App}/>
                             <PrivateRoute path="/drivers" component={Drivers}/>
+                            <PrivateRoute path="/workers" component={Workers}/>
+                            <PrivateRoute path="/orders" component={Orders}/>
                         </Switch>
                     </div>
                 </div>
