@@ -26,6 +26,9 @@ body {
 .textAlign-center {
   text-align: center;
 }
+.no-outline {
+  outline: none;
+}
 .pointer {
   cursor: pointer;
 }
@@ -50,6 +53,10 @@ body {
   color: #6a95d1;
 }
 #sidebar a {
+  background-color: #192231;
+}
+#sidebar a:hover {
+  color: #98878F;
   background-color: #192231 !important;
 }
 #sidebar a:hover,
