@@ -82,9 +82,9 @@ class Query {
             }
         }
 
-        $myfile = fopen("newfile.txt", "a");
-        fwrite($myfile, $this->parametizedQuery);
-        fclose($myfile);
+        // $myfile = fopen("newfile.txt", "a");
+        // fwrite($myfile, $this->parametizedQuery);
+        // fclose($myfile);
 
         return $this->parametizedQuery;
     }

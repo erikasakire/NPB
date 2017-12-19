@@ -1,0 +1,25 @@
+
+            SELECT 
+                /** Asmens informacija **/
+                da.`Vardas` AS DVardas,
+                da.`Pavarde` AS DPavarde,
+                    
+                /** Asmens informacija **/
+                va.`Vardas` AS VVaradas,
+                va.`Pavarde` AS VPavarde,
+                
+                /** Teisiu informacija**/
+                `rangas`.`rangai`,
+                `rangas`.`id`
+                
+            FROM `registracija`
+            LEFT JOIN `darbuotojas` ON 	`darbuotojas`.`Registracija_Prisijungimo_vardas` = `registracija`.`Prisijungimo_vardas`
+            LEFT JOIN `asmuo` AS da ON 	`darbuotojas`.`Asmuo_AsmensKodas` = da.`AsmensKodas`
+            LEFT JOIN `rangas` ON  `rangas`.`id` = `darbuotojas`.`Rangas_id`
+
+            LEFT JOIN `vairuotojas` ON `vairuotojas`.`Registracija_Prisijungimo_vardas` = `registracija`.`Prisijungimo_vardas`
+            LEFT JOIN `asmuo` AS va ON `vairuotojas`.`Asmuo_AsmensKodas` = va.`AsmensKodas`
+            
+            WHERE `registracija`.`Prisijungimo_vardas` = 'aannablet' 
+                AND `registracija`.`Slaptazodis` = 'Rzddpyh6Pp'
+         

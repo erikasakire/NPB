@@ -1,5 +1,6 @@
 import React from "react";
-
+import { connect } from 'react-redux';
+import { Redirect } from 'react-router-dom';
 import config from '../config.json';
 
 class Workers extends React.Component{
@@ -61,6 +62,10 @@ class Workers extends React.Component{
     }
 
     render(){
+        if (["1", "2"].indexOf(this.props.rangas) == -1){
+            return <Redirect to='/'/>;
+        }
+
         let rows = null;
         if(this.state.data.empty){
             if(this.state.data.fetched){
@@ -111,4 +116,10 @@ class Workers extends React.Component{
     }
 }
 
-export default Workers;
+export default connect(
+    state => {
+        return {
+            rangas: state.user.rangas.id
+        }
+    }
+)(Workers);

@@ -11,15 +11,11 @@ import './styles/index.css';
 import './styles/extra.css';
 
 /** Component imports */
-import Orders from './components/Orders'
+import Router from './Router/Router';
 
 
-<<<<<<< HEAD
-ReactDOM.render(<Orders />, document.getElementById('root'));
-=======
 ReactDOM.render(
   <Provider store={store}>
-    <Router/>
+    <Router />
   </Provider>, 
 document.getElementById('entry'));
->>>>>>> refs/remotes/origin/master

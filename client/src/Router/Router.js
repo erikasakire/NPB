@@ -19,7 +19,10 @@ import Preke from '../components/Preke';
 import Padalinys from '../components/Padalinys';
 import Ataskaita from '../components/Ataskaita';
 import Workers from '../components/Workers';
-import Orders from '../components/Orders';
+import Orders from '../components/Orders1';
+import Order from '../components/Order';
+import Drivers from '../components/Drivers';
+import Vehicles from '../components/Vehicles';
 
 
 class Router extends React.Component {
@@ -50,9 +53,20 @@ class Router extends React.Component {
                                 </Link>
                             </li>
                             <li>
-                                <Link to='/orders'>
-                                    Užsakymai
+                                <Link to='/drivers'>
+                                    Vairuotojai
                                 </Link>
+                            </li>
+                            <li>
+                                <Link to='/orders'>
+                                    Užsakymų vykdymas
+                                </Link>
+                            </li>
+                            <li>
+                                <Link to="/order">Užsakymai</Link>
+                            </li>
+                            <li>
+                                <Link to="/vehicle">Transporto priemonės</Link>
                             </li>
                             <li className="flex"/>
                             <li>
@@ -78,7 +92,10 @@ class Router extends React.Component {
                             <PrivateRoute path="/padaliniai/:id" component={Padalinys}/>
                             <PrivateRoute path="/drivers" component={Drivers}/>
                             <PrivateRoute path="/workers" component={Workers}/>
-                            <PrivateRoute path="/orders" component={Orders}/>
+                            <PrivateRoute path="/orders" component={Order}/>
+                            <PrivateRoute path="/order" component={Orders}/>
+                            <PrivateRoute path="/vehicle" component={Vehicles}/>
+
                         </Switch>
                     </div>
                 </div>

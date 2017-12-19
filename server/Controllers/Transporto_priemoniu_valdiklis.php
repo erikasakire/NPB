@@ -5,13 +5,13 @@ class Transporto_priemoniu_valdiklis extends Controller {
     public function __construct($params, $urlParams, $type) {
         parent::__construct($params, $urlParams, $type);
 
-<<<<<<< HEAD
         $this->get('/sarasas', [$this, 'gauti_TP_sarasa']);
         $this->post('/salinti', [$this, 'salinti_TP']);
         $this->post('/redaguoti', [$this, 'atnaujinti_TP_duom']);
         $this->post('/prideti', [$this, 'issaugoti_nauja_TP']);
-
-        $this->mapToMethod($this);
+        $this->get('/neuzimtostp/:id', [$this, 'Neuzimtos_transporto_priemones']);
+        
+        $this->mapToMethod();
     }
 
     public function gauti_TP_sarasa(Request $req, Response $res) {
@@ -226,15 +226,6 @@ class Transporto_priemoniu_valdiklis extends Controller {
             $res->send(Response::BAD_REQUEST);
         }
     }
-}
-
-?>
-=======
-        $this->get('/neuzimtostp/:id', [$this, 'Neuzimtos_transporto_priemones']);
-
-        $this->mapToMethod();
-    }
-
     public function Neuzimtos_transporto_priemones(Request $req, Response $res){
         $db = new Database();
         if (($result = $db->query_String("
@@ -271,4 +262,3 @@ class Transporto_priemoniu_valdiklis extends Controller {
         return $res->send(Response::BAD_REQUEST);
     }
 }
->>>>>>> refs/remotes/origin/master

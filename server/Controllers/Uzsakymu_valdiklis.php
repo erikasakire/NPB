@@ -94,7 +94,7 @@ class Uzsakymu_valdiklis extends Controller {
             SET `uzsakymas`.`Busena` = IF (NOT `uzsakymas`.`Busena` =  '3', '4', '3')
             WHERE `uzsakymas`.`Numeris` = ::numeris
          ", array(
-            "numeris" => $req->body['numeris']
+            "numeris" => $req->body['Numeris']
         ));
 
         if($result){

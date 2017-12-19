@@ -1,5 +1,7 @@
 import React from 'react';
 import { Modal, ModalHeader, ModalTitle, ModalFooter, ModalBody, Button, FormControl,FormGroup, ControlLabel} from 'react-bootstrap';
+import { Redirect } from "react-router-dom";
+import { connect } from "react-redux";
 
 class Darbuotojas extends React.Component {
     constructor(props){
@@ -29,7 +31,9 @@ class Darbuotojas extends React.Component {
         })
     }
 
-    render(){let eilutes = [];
+    render(){
+
+        let eilutes = [];
         let padaliniai = [];
         let e = '';
 
@@ -114,4 +118,11 @@ class Darbuotojas extends React.Component {
     }
 }
 
-export default Darbuotojas;
+export default connect(
+    state => {
+        return {
+            rangas: state.user.rangas.id
+        }
+    }
+)
+Darbuotojas;

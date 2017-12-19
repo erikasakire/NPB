@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Modal, ModalBody, ModalHeader, ModalTitle, FormGroup, FormControl, ControlLabel , ModalFooter, Button, PageHeader} from 'react-bootstrap';
-
+import { Redirect } from "react-router-dom";
 import config from '../config.json';
 
 class Drivers extends React.Component{
@@ -456,6 +456,10 @@ class Drivers extends React.Component{
 
 
     render(){
+        if (["1", "2"].indexOf(this.props.rangas) == -1){
+            return <Redirect to='/'/>;
+        }
+
         /** Drivers table */
         let rows = null;
         if(this.state.data.empty){
@@ -786,7 +790,8 @@ export default connect(
     state => {
          return {
             username: state.login.name,
-            accessKey: state.login.accessKey
+            accessKey: state.login.accessKey,
+            rangas: state.user.rangas.id
          };
     },
     null
