@@ -11,7 +11,7 @@ import './styles/index.css';
 import './styles/extra.css';
 
 /** Component imports */
-import Vehicles from './components/Vehicles'
+import Orders from './components/Orders'
 
 
-ReactDOM.render(<Vehicles />, document.getElementById('root'));
+ReactDOM.render(<Orders />, document.getElementById('root'));

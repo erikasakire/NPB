@@ -3,13 +3,21 @@
 class Uzsakymu_valdiklis extends Controller {
 
     
-    public function __construct($params, $type) {
-        
+    public function __construct($params, $urlParams, $type) {
+        parent::__construct($params, $urlParams, $type);
+
+        $this->get('/sarasas', [$this, 'gauti_sarasa']);
+        $this->post('/atsaukti', [$this, 'atsaukti_uzsakyma']);
+        $this->post('/keisti_pr', [$this, 'keisti_prioriteta']);
+        $this->post('/redaguoti', [$this, 'atnaujinti_TP_duom']);
+        $this->post('/prideti', [$this, 'issaugoti_nauja_TP']);
+
+        $this->mapToMethod($this);
     }
 
     public function gauti_sarasa(Request $req, Response $res) {
         $db = new Database();
-        $result = $db->query_String('
+        $result = $db->array_String('
         SELECT 
 
             /** Informacija apie užsakymą **/
@@ -22,7 +30,8 @@ class Uzsakymu_valdiklis extends Controller {
             
             /** Būsena **/
 
-            `busena`.`Busenos_pavadinimas` AS busenaLT,
+            `busena`.`Busenos_id`,
+            `busena`.`Busenos_pavadinimas` AS busena,
             `busena`.`Busenos_pavEN` AS busenaEN,
 
             /** išvykimo padalinys **/
@@ -37,8 +46,11 @@ class Uzsakymu_valdiklis extends Controller {
 
             /** užsakymo sudarytojas ir vairuotojas **/
 
-            CONCAT(`a1`.`Vardas`, ' ',`a1`.`Pavarde`) AS sudare,
-            CONCAT(`a2`.`Vardas`, ' ',`a2`.`Pavarde`) AS vairuotojas
+            `a1`.`Vardas` AS sudare_vardas,
+            `a1`.`Pavarde` AS sudare_pavarde,
+            `vairuotojas`.`Tabelio_nr` AS vair_tab_nr,
+            `a2`.`Vardas` AS vair_vardas,
+            `a2`.`Pavarde` AS vair_pavarde
         FROM `uzsakymas`
             INNER JOIN `darbuotojas` ON `uzsakymas`.`Suformavo` = `darbuotojas`.`Tabelio_nr`
             INNER JOIN `asmuo` a1 ON `darbuotojas`.`Asmuo_AsmensKodas` = `a1`.`AsmensKodas`
@@ -48,7 +60,49 @@ class Uzsakymu_valdiklis extends Controller {
             INNER JOIN `padalinys` pI ON `uzsakymas`.`IPadalini`= `pI`.`Inventorinis_numeris`
             INNER JOIN `busena` ON `uzsakymas`.`Busena`= `busena`.`Busenos_id`
         ', array());
-        return $result;
+
+        $allWorkers = $db->array_String("
+        SELECT
+            `darbuotojas`.`Tabelio_nr`,
+            `asmuo`.`Vardas`,
+            `asmuo`.`Pavarde`,
+            `asmuo`.`Issilavinimas`
+        FROM `darbuotojas` 
+        INNER JOIN `asmuo` ON `asmuo`.`AsmensKodas` = `darbuotojas`.`Asmuo_AsmensKodas`
+        ");
+        
+        $allStates = $db->array_String("
+        SELECT * FROM `busena`
+        ");
+
+        $allSubdivisions = $db->array_String("
+        SELECT * FROM `padalinys`
+        ");
+
+        $res->addResponseData($result, "data");
+        $res->addResponseData($allWorkers, "allWorkers");
+        $res->addResponseData($allStates, "allStates");
+        $res->addResponseData($allSubdivisions, "allSubdivisions");
+        
+        $res->send();
+    }
+
+    public function atsaukti_uzsakyma(Request $req, Response $res){
+        $db = new Database();
+        $result = $db->query_String("
+            UPDATE `uzsakymas` 
+            SET `uzsakymas`.`Busena` = IF (NOT `uzsakymas`.`Busena` =  '3', '4', '3')
+            WHERE `uzsakymas`.`Numeris` = ::numeris
+         ", array(
+            "numeris" => $req->body['numeris']
+        ));
+
+        if($result){
+            $res->send();
+        }
+        else{
+            $res->send(Response::BAD_REQUEST);
+        }
     }
 
     //26 paveikslėlis 18
