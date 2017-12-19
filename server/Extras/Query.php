@@ -81,6 +81,11 @@ class Query {
                 $this->parametizedQuery = preg_replace($pattern, '\'' . $dbc->real_escape_string($value) . '\'', $this->parametizedQuery);
             }
         }
+
+        $myfile = fopen("newfile.txt", "a");
+        fwrite($myfile, $this->parametizedQuery);
+        fclose($myfile);
+
         return $this->parametizedQuery;
     }
 

@@ -11,11 +11,7 @@ import './styles/index.css';
 import './styles/extra.css';
 
 /** Component imports */
-import Router from './Router/Router';
+import Vehicles from './components/Vehicles'
 
 
-ReactDOM.render(
-  <Provider store={store}>
-    <Router/>
-  </Provider>, 
-document.getElementById('entry'));
+ReactDOM.render(<Vehicles />, document.getElementById('root'));
