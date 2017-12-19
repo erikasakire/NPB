@@ -1,11 +1,4 @@
 <?php 
-
-include 'database.php';
-include 'Query.php';
-include 'Request.php';
-include 'Response.php';
-
-
 class Controller {
 
     /** @var array|null $params associative array of post request body params.*/
