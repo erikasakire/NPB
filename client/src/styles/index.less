@@ -4,6 +4,7 @@
 @color-cloud: #98878F;
 @color-sunset: #985E6D;
 @color-evening: #192231;
+@color-disabled: #a1a1a1;
 
 body {
   margin: 0;
@@ -36,6 +37,9 @@ body {
 .no-outline{
   outline: none;
 }
+.pointer {
+  cursor: pointer;
+}
 
 /** Style for exacts elements **/
 #entry {
@@ -50,12 +54,12 @@ body {
   min-width: 250px;
   max-width: 250px;
   overflow: hidden;
-  background: @color-evening;
+  background: #192231;
   font-size: 20px;
 
   .navTitle {
     font-size: 52px;
-    color: @color-cloud;
+    color: #6a95d1;
   }
 
   a {
@@ -65,9 +69,76 @@ body {
   a:hover{
     color: @color-cloud;
     background-color: @color-evening !important;
+  }
 
+  a:hover, a:active, li:hover, li:active, ul:active, a:focus, li:focus{
+    color: @color-cloud;
+    background-color: @color-evening !important;
+    outline: none;
   }
 }
 #main {
   flex: 1;
+  overflow: auto;
+  padding-bottom: 25px;
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+}
+
+#table {
+  font-family: arial, sans-serif;
+  width: 100%;
+  padding: 15px;
+  box-sizing: border-box;
+  background-color: transparent;
+  cursor: default;
+  
+  th, td {
+    border-left: none;
+    border-right: none;
+    text-align: center;
+    padding: 8px;
+    border-top: 1px solid #cacaca;
+    border-bottom: 1px solid #cacaca;
+  }
+  th {
+    font-size: 18px;
+  }
+  a:hover {
+    transition-duration: 0.3s;
+    color: @color-cloud;
+    cursor: pointer;
+  }
+  a {
+    width: 150px;
+    text-align: center;
+    text-decoration: none;
+    color: @color-stormy;
+    font-weight: bold;
+  }
+  .statusMessage{
+    height: 80px;
+    font-size: 22px;
+    letter-spacing: 2px;
+    color: @color-disabled;
+    font-weight: 400;
+  }
+}
+
+.labelValue {
+  display: flex;
+
+  > * {
+    flex: 1;
+  }
+}
+
+.box {
+  margin-left: 5px;
+  padding: 0px 5px;
+  box-sizing: border-box;
 }

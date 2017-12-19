@@ -1,62 +1,21 @@
 import React from 'react';
 
 class App extends React.Component {
-  constructor(props) {
-    super(props);
-  
-    this.handleSubmit = this.handleSubmit.bind(this);
-  }
-  
-  handleSubmit(e){
-    e.preventDefault();
-    
-    let params = {};
-    for(let i = 0; i < e.target.elements.length; i++){
-      params[e.target.elements[i].name] = e.target.elements[i].value;
-    }
-
-    fetch('http://localhost:8081/api/padaliniai/login/' + params['username'] + '/' + params['password'], {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({"jis" : "jonas", "ji": "ona"})
-    })
-    .then(response => response.json())
-    .then(response => {
-      console.log(response);
-    })
-  }
-
-  try(){
-    fetch('http://localhost:8081/api/padaliniai/visi/', {
-      method: 'GET'
-    })
-    .then(response => response.json())
-    .then(response => {
-      console.log(response);
-    })
-  }
-
-  render() {
-    return (
-      <div className="App">      
-        <div>
-          <form action="" onSubmit={this.handleSubmit} method="GET" name="login">
-              <label htmlFor="username">Vartotojo vardas: </label> 
-              <input type="text" name="username" id="username"/>
-
-              <label htmlFor="password">Slaptažodis: </label>
-              <input type="password" name="password" id="password"/>
-
-              <button type="submit" name="isSubmited">Prisijugti</button>
-          </form>
-          <button onClick={this.try.bind(this)}>try</button>
+    render() {
+        return (
+        <div style={{ textAlign: "center"}}>
+            <h2 style= {{color: "#985E6D"}}>Informacinė sistema, susijusi su logistikos procesų valdymu.</h2>
+            <hr/>
+            <h3>Mūsų grupę sudaro trys nariai: </h3>
+            <h4>Erikas Bagdonas IFA-5 (Komandos vadovas), posistemės:</h4>
+            <h5> Sistemos prieinamumo posistemė, Užsakymo vykdymo posistemė;</h5>
+            <h4>Elona Paulikaitytė IFA-5, posistemės:</h4> 
+            <h5> Produkcijos ir pakeitimų sekimo posistemė, padalinių posistemė.</h5>
+            <h4>Mindaugas Nauronis IFF-5/1 </h4>
+            <h5> Užsakymų sukūrimo posistemė, Transporto priemonių panaudos ir priežiūros posistemė.</h5>         
         </div>
-      </div>
-    );
-  }
+        );
+    }
 }
 
 export default App;

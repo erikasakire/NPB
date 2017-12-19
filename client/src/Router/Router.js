@@ -18,6 +18,9 @@ import Darbuotojas from '../components/Darbuotojas';
 import Preke from '../components/Preke';
 import Padalinys from '../components/Padalinys';
 import Ataskaita from '../components/Ataskaita';
+import Workers from '../components/Workers';
+import Orders from '../components/Orders';
+
 
 class Router extends React.Component {
     render(){
@@ -41,6 +44,16 @@ class Router extends React.Component {
                             <li>
                                 <Link to='/produkcija/ataskaita'>Produktų judėjimo ataskaita</Link>
                             </li>
+                            <li>
+                                <Link to='/workers'>
+                                    Darbuotojai
+                                </Link>
+                            </li>
+                            <li>
+                                <Link to='/orders'>
+                                    Užsakymai
+                                </Link>
+                            </li>
                             <li className="flex"/>
                             <li>
                                 { 
@@ -63,6 +76,9 @@ class Router extends React.Component {
                             <PrivateRoute path="/darbuotojas/:id" component={Darbuotojas}/>
                             <PrivateRoute path ="/produkcija/:id" component={Preke}/>
                             <PrivateRoute path="/padaliniai/:id" component={Padalinys}/>
+                            <PrivateRoute path="/drivers" component={Drivers}/>
+                            <PrivateRoute path="/workers" component={Workers}/>
+                            <PrivateRoute path="/orders" component={Orders}/>
                         </Switch>
                     </div>
                 </div>

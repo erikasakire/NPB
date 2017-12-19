@@ -2,6 +2,7 @@
 
 class Response{
     public const OK             = 200;
+    public const NO_CONTENT     = 204;
     public const NOT_MODIFIED   = 304;
     public const BAD_REQUEST    = 400;
     public const NOT_AUTHORIZED = 401;
