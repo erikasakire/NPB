@@ -104,12 +104,12 @@ class Database {
         if (empty($queries)){
             return true;
         }
-
         do{
             $this->dbc->autocommit(false);
 
             foreach($queries as $q){
                 $result = $this->_query($q);
+                echo($this->error());
                 if (!$result){
                     $erroc = true;
                     break;

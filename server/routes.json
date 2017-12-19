@@ -1,7 +1,13 @@
 {
-    "padaliniai" : "Padaliniai",
+    "padaliniai": "Padaliniai",
+    "produkcija": "Produkcija",
     "uzsakymuvykdymas": "Uzsakymu_Vykdymas",
+<<<<<<< HEAD
     "Transporto_priemones": "Transporto_priemoniu_valdiklis",
     "Uzsakymai": "Uzsakymu_valdiklis"
 
+=======
+    "sistemosprieinamumas": "Sistemos_Prieinamumas",
+    "Transporto_priemones": "Transporto_priemoniu_valdiklis"
+>>>>>>> refs/remotes/origin/master
 }

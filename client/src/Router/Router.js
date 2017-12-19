@@ -11,8 +11,15 @@ import { logout_user as removeAccessKey } from '../store/actions/loginActions';
 import PrivateRoute from './PrivateRoute';
 import App from '../components/App';
 import Login from '../components/Login';
-import Drivers from '../components/Drivers';
 import Logout from '../components/Logout';
+import Padaliniai from '../components/Padaliniai';
+import Produkcija from '../components/Produkcija';
+import Darbuotojas from '../components/Darbuotojas';
+import Preke from '../components/Preke';
+import Padalinys from '../components/Padalinys';
+import Ataskaita from '../components/Ataskaita';
+import Workers from '../components/Workers';
+import Orders from '../components/Orders';
 
 
 class Router extends React.Component {
@@ -26,13 +33,25 @@ class Router extends React.Component {
                                 <Link to='/' className="navTitle">
                                     NPB
                                 </Link>
-                            </li>
-                            <li>
                                 <hr/>
                             </li>
                             <li>
-                                <Link to='/drivers'>
-                                    Vairuotojai
+                                <Link to='/padaliniai'>Padaliniai</Link>
+                            </li>
+                            <li>
+                                <Link to='/produkcija'>Produkcija</Link>
+                            </li>
+                            <li>
+                                <Link to='/produkcija/ataskaita'>Produktų judėjimo ataskaita</Link>
+                            </li>
+                            <li>
+                                <Link to='/workers'>
+                                    Darbuotojai
+                                </Link>
+                            </li>
+                            <li>
+                                <Link to='/orders'>
+                                    Užsakymai
                                 </Link>
                             </li>
                             <li className="flex"/>
@@ -49,9 +68,17 @@ class Router extends React.Component {
                         <Switch>
                             <Route path="/login" component={Login}/>
                             <Route path="/logout" component={Logout}/>
-
+                            
                             <PrivateRoute exact path="/" component={App}/>
+                            <PrivateRoute exact path="/padaliniai" component={Padaliniai}/>
+                            <PrivateRoute exact path="/produkcija" component={Produkcija}/>
+                            <PrivateRoute exact path="/produkcija/ataskaita" component={Ataskaita}/>
+                            <PrivateRoute path="/darbuotojas/:id" component={Darbuotojas}/>
+                            <PrivateRoute path ="/produkcija/:id" component={Preke}/>
+                            <PrivateRoute path="/padaliniai/:id" component={Padalinys}/>
                             <PrivateRoute path="/drivers" component={Drivers}/>
+                            <PrivateRoute path="/workers" component={Workers}/>
+                            <PrivateRoute path="/orders" component={Orders}/>
                         </Switch>
                     </div>
                 </div>

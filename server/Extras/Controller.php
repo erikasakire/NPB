@@ -1,11 +1,4 @@
 <?php 
-
-include 'database.php';
-include 'Query.php';
-include 'Request.php';
-include 'Response.php';
-
-
 class Controller {
 
     /** @var array|null $params associative array of post request body params.*/
@@ -59,7 +52,7 @@ class Controller {
     /**
      * Maps current url to method by checking templates.
      */
-    protected function mapToMethod(){
+    protected function mapToMethod(){ 
         switch($this->type){
             case typesEnumerator::GET: {
                 return $this->_mapToMethod($this->get, $this->urlParams, $this->params);
