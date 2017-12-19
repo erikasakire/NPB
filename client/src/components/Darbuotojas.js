@@ -11,7 +11,7 @@ class Darbuotojas extends React.Component {
                 data: [],
             },
         };
-
+        console.log(this);
         this.fetchData = this.fetchData.bind(this);
     }
     
@@ -19,7 +19,7 @@ class Darbuotojas extends React.Component {
         this.fetchData();
     }
     fetchData (){
-        fetch('http://localhost:8081/api/padaliniai/Darbuotojas/8904', {
+        fetch('http://localhost:8081/api/padaliniai/Darbuotojas/' + this.props.computedMatch.params.id, {
             method: "GET"
         })
         .then(response => response.json())
@@ -50,20 +50,25 @@ class Darbuotojas extends React.Component {
             }
             eilutes.push(
                 <div key={i}>
-                    <h4>Vardas ir Pavardė:</h4>
-                    <h3>{a.Vardas} {a.Pavarde}</h3>
-                    <hr/>
-                    <h4>Tabelio numeris:</h4>
-                    <h3>{a.Tabelio_nr}</h3>
-                    <hr/>
-                    <h4>Išsilavinimas:</h4>
-                    <h3>{a.Issilavinimas}</h3>
-                    <hr/>
-                    <h4>Etatas:</h4>
-                    <h3>{e}</h3>
-                    <hr/>
-                    <h4>Stažas:</h4>
-                    <h3>{a.Stazas} metai.</h3>
+                    <div style={{ backgroundColor: "#192231"}}>
+                        <h2 style={{ color: "#494E6B", textHeight: "50px", display: "block", padding: "10px", marginBottom:"0px"}}>Pagrindinė informacija apie darbuotoją: </h2>
+                    </div>
+                    <div style={{backgroundColor:"rgb(196, 201, 228)"}}>
+                        <h4 style={{marginTop:"0px"}}>Vardas ir Pavardė:</h4>
+                        <h3>{a.Vardas} {a.Pavarde}</h3>
+                        <hr/>
+                        <h4>Tabelio numeris:</h4>
+                        <h3>{a.Tabelio_nr}</h3>
+                        <hr/>
+                        <h4>Išsilavinimas:</h4>
+                        <h3>{a.Issilavinimas}</h3>
+                        <hr/>
+                        <h4>Etatas:</h4>
+                        <h3>{e}</h3>
+                        <hr/>
+                        <h4>Stažas:</h4>
+                        <h3>{a.Stazas} metai.</h3>
+                    </div>
                 </div>
             )
         }

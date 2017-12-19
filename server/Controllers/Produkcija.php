@@ -18,8 +18,11 @@ class Produkcija extends Controller{
         parent::__construct($params, $urlParams, $type);
         
         $this->get('/visi', [$this, 'VisiProduktai']);
-        $this->get('/:id', [$this,'KonkretiPreke']);
+        $this->get('/ataskaita', [$this, 'GautiPadalinius']);
+        $this->get('/ataskaita/:id', [$this, 'GautiPadalinius']);
         $this->get('/Produktas/:id', [$this,'ProduktoInformacija']);
+        $this->get('/:id', [$this,'KonkretiPreke']);
+
         $this->post('/prideti', [$this, 'PridetiProdukta']);
         $this->post('/redaguoti', [$this, 'RedaguotiPrduktoInformacija']);
         $this->post('/salinti', [$this,'PasalintiProdukta']);
@@ -58,8 +61,9 @@ class Produkcija extends Controller{
             array(
                 "id"=> $id
             ));
+            return $duomenys;
         }
-        return $duomenys;
+        return null;
     }
 
     public function PridetiProdukta (Request $req, Response $res){
@@ -208,6 +212,84 @@ class Produkcija extends Controller{
         ));
         $res->addResponseData($duomenys, "data");
         $res->send();
+    }
+
+    public function GautiPadalinius (Request $req, Response $res){
+        $padaliniai = $this->ProduktoPadalinys();
+
+        for($i = 0; $i < count($padaliniai); $i++){
+            $e = $this->IPadalini($padaliniai[$i]['Inventorinis_numeris']);
+            $padaliniai[$i]['IPadalini'] = $e;
+            $padaliniai[$i]['IPadalini']['count'] = count($e);
+            for($j = 0; $j < count($e); $j++){
+                $p = $this->UzsakymoPrekes($padaliniai[$i]['IPadalini'][$j]['Numeris']);
+                $padaliniai[$i]['IPadalini'][$j]['prekes'] = $p;
+                $padaliniai[$i]['IPadalini'][$j]['prekes']['count'] = count($p);
+            }
+
+            $e = $this->IsPadalinio($padaliniai[$i]['Inventorinis_numeris']);
+            $padaliniai[$i]['IsPadalinio'] = $e;
+            $padaliniai[$i]['IsPadalinio']['count'] = count($e);
+            for($j = 0; $j < count($e); $j++){
+                $p = $this->UzsakymoPrekes($padaliniai[$i]['IsPadalinio'][$j]['Numeris']);
+                $padaliniai[$i]['IsPadalinio'][$j]['prekes'] = $p;
+                $padaliniai[$i]['IsPadalinio'][$j]['prekes']['count'] = count($p);
+            }
+        }
+        
+        $res->addResponseData($padaliniai, "data");
+        $res->send(Response::OK);
+    }
+
+    public function IPadalini($id){
+        if ($id != null) {
+            $db = new Database();
+            $duomen = $db->array_String("
+                SELECT * 
+                FROM uzsakymas 
+                WHERE uzsakymas.IPadalini = ::id ",
+            array(
+                "id"=>$id
+            ));
+            if($duomen){
+                return $duomen;
+            }
+        }
+    }
+    public function IsPadalinio($id){ 
+        if ($id != null) {
+            $db = new Database();
+            $duomen = $db->array_String("
+                SELECT * 
+                FROM uzsakymas 
+                WHERE uzsakymas.IsPadalinio = ::id ", 
+            array(
+                "id"=>$id
+            ));
+            if($duomen){
+                return $duomen;
+            }
+        }
+    }
+    public function UzsakymoPrekes($numeris){
+        $db = new Database();
+
+        $q = Query::generate("
+        SELECT
+            `produktas`.*,
+            `uzsakymo_produktas`.`Kiekis`
+        FROM `uzsakymas`
+        LEFT JOIN `uzsakymo_produktas` ON `uzsakymas`.`Numeris` = `uzsakymo_produktas`.`Uzsakymas_Numeris`
+        LEFT JOIN `produktas` ON `produktas`.`Barkodas` = `uzsakymo_produktas`.`Produktas_Barkodas`
+        WHERE `uzsakymas`.`Numeris` = ::numeris
+     ", array("numeris" => $numeris));
+        $result = $db->query_Query($q);
+        if ($result){
+            return $db->array_MysqliResult($result);
+        }
+
+
+
     }
 }
 

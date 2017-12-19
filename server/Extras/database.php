@@ -12,10 +12,6 @@ class Database {
         $this->dbc = new mysqli(DATABASE_SERVER, DATABASE_USERNAME, DATABASE_PASSWORD);
         $this->dbc->select_db(DATABASE_SCHEMA);
         $this->dbc->set_charset('utf8');
-<<<<<<< HEAD
-     
-=======
->>>>>>> master
        return $this;
     }
 

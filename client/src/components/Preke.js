@@ -1,5 +1,7 @@
 import React from 'react';
 import { Modal, ModalHeader, ModalTitle, ModalFooter, ModalBody, Button, FormControl,FormGroup, ControlLabel} from 'react-bootstrap';
+import { connect } from "react-redux";
+import { Redirect } from "react-router-dom";
 
 class Preke extends React.Component {
     constructor(props){
@@ -19,7 +21,7 @@ class Preke extends React.Component {
         this.fetchData();
     }
     fetchData (){
-        fetch('http://localhost:8081/api/produkcija/Produktas/11483', {
+        fetch('http://localhost:8081/api/produkcija/Produktas/' + this.props.computedMatch.params.id, {
             method: "GET"
         })
         .then(response => response.json())
@@ -31,6 +33,7 @@ class Preke extends React.Component {
 
     render(){let eilutes = [];
         let padaliniai = [];
+        let padalKiekis = [];
         let e = '';
 
         for(let i = 0; i < this.state.data.data.length; i++){
@@ -42,12 +45,14 @@ class Preke extends React.Component {
             else{
                 e="Netiekiama";
             }
+            if(i>0){ break;}
             eilutes.push(
                 <div key={i}>
                     <div style={{ backgroundColor: "#192231"}}>
-                        <h2 style={{ color: "#494E6B", textHeight: "50px", display: "block", padding: "10px"}}>Pagrindinė informacija apie produktą: </h2>
+                        <h2 style={{ color: "#494E6B", textHeight: "50px", display: "block", padding: "10px", marginBottom:"0px"}}>Pagrindinė informacija apie produktą: </h2>
                     </div>
-                    <h4>Barkodas:</h4>
+                    <div style={{backgroundColor:"rgb(196, 201, 228)"}}>
+                    <h4 style={{marginTop:"0px"}}>Barkodas:</h4>
                     <h3>{a.Barkodas}</h3>
                     <hr/>
                     <h4>Produkto pavadinimas:</h4>
@@ -62,9 +67,6 @@ class Preke extends React.Component {
                     <h4>Vieneto kaina:</h4>
                     <h3>{a.Vieneto_kaina} &euro;</h3>
                     <hr/>
-                    <h4>Kiekis:</h4>
-                    <h3>{a.Kiekis} {a.Matavimo_vnt != null? null: a.Matavimo_vnt}</h3>
-                    <hr/>
                     <h4>Gamintojas:</h4>
                     <h3>{a.Gamintojas}</h3>
                     <hr/>
@@ -73,12 +75,20 @@ class Preke extends React.Component {
                     <hr/>
                     <h4>Galioja iki:</h4>
                     <h3>{a.Galioja_iki.substring(0,10)}</h3>
-                    <h4>Aprašymas:</h4>
-                    <h3>{a.Aprasymas}</h3>
+                    {a.Aprasymas != "" ?
+                       <div>
+                            <hr/>
+                            <div>
+                                <h4>Aprašymas:</h4>
+                                <h3>{a.Aprasymas}</h3>
+                            </div> 
+                        </div>:
+                        null
+                    }
+                    </div>
                 </div>
             );
         }
-    
         for(let i = 0; i< this.state.data.data.length; i++){
             let b = this.state.data.data[i];
             padaliniai.push(
@@ -95,20 +105,22 @@ class Preke extends React.Component {
                 <p>{b.Salis}</p>
                 <h4>Miestas:</h4>
                 <p>{b.Miestas}</p>
+                <h4 style={{fontWeight: "bold"}}>Prekės kiekis šiame padalinyje:</h4>
+                    <h3>{b.Kiekis} {b.Matavimo_vnt != null? null: b.Matavimo_vnt}</h3>
                 <hr/>
             </div>
             </div>
             );
         }
         return(
-            <div id="wraper" >>
-                <h2 style={{
+            <div id="wraper" >
+            <h2 style={{
                     textAlign: "center",
                     color: "#985E6D",
                     paddingBottom: "50px"
                 }}>Produkto informacija</h2>
                 <div style={{ display: "flex" }}>
-                    <div style={{ flex: "1"}}>
+                    <div style={{ flex: "1", marginLeft:"-80px" }}>
                         {eilutes}
                     </div>
                     <div style={{ flex: "0.7", marginLeft: "50px"}}>
@@ -122,4 +134,10 @@ class Preke extends React.Component {
     }
 }
 
-export default Preke;
+export default connect(
+    state => {
+        return {
+            rangas: state.user.rangas.id
+        }
+    }
+)(Preke);

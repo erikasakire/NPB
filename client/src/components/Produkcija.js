@@ -1,5 +1,9 @@
 import React from 'react';
 import { Modal, ModalHeader, ModalTitle, ModalFooter, ModalBody, Button, FormControl,FormGroup, ControlLabel} from 'react-bootstrap';
+import { Link } from 'react-router-dom';
+import config from '../config.json';
+import { connect } from "react-redux";
+import { Redirect } from "react-router-dom";
 
 class Produkcija extends React.Component {
     constructor(props){
@@ -201,6 +205,12 @@ class Produkcija extends React.Component {
         if (this.state.form.Galioja_iki == ""){
             return this.addError('Prašome įvesti galiojimo datą.');
         }
+        var date1 = new Date(this.state.form.Pagaminimo_data);
+        var date2 = new Date(this.state.form.Galioja_iki);
+        console.log(date1.getTime());
+        if(date1.getTime() >= date2.getTime()){
+            return this.addError('Pagaminimo data negali būti mažesnė arba lygi galiojimo datai.');
+        }
         if (this.state.form.Tiekiamas == ""){
             return this.addError('Pasirinkite ar tiekiama ar ne.');
         }
@@ -210,66 +220,23 @@ class Produkcija extends React.Component {
         if(this.state.form.Galioja_iki < this.state.form.Pagaminimo_data){
             return this.addError('Galiojimo data negali būti ankstesnė nei pagaminimo data.')
         }
-
-        if(this.state.update == false){
-            console.log(this.state.form);
-            fetch('http://localhost:8081/api/produkcija/prideti', {
-                method: "POST",
-                headers: {
-                    "Accept": "application/json",
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    "Barkodas":  this.state.form.Barkodas,
-                    "Pavadinimas":  this.state.form.Pavadinimas,
-                    "Vieneto_kaina":  this.state.form.Vieneto_kaina,
-                    "Aprasymas":  this.state.form.Aprasymas,
-                    "Matavimo_vnt":  this.state.form.Matavimo_vnt,
-                    "Gamintojas":  this.state.form.Gamintojas,
-                    "PavadinimasEN":  this.state.form.PavadinimasEN,
-                    "AprasymasEN":  this.state.form.AprasymasEN,
-                    "Pagaminimo_data":  this.state.form.Pagaminimo_data,
-                    "Galioja_iki":  this.state.form.Galioja_iki,
-                    "Tiekiamas":  this.state.form.Tiekiamas ? '1' : '0',
-                    "Kategorija_Kategorija_id":  this.state.form.Kategorija_Kategorija_id
-                })
-            })
-            .then(response => {
-                if (response.status == 200) {
-                    this.setState({showModal: false});
-                    this.fetchData();
-                }
-            });
-                
-
-        }
-        else{
-            fetch('http://localhost:8081/api/padaliniai/redaguoti', {
-                method: "POST",
-                headers: {
-                    "Accept": "application/json",
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    "Inventorinis_numeris": this.state.form.Inventorinis_numeris,
-                    "Salis": this.state.form.Salis,
-                    "Miestas": this.state.form.Miestas,
-                    "Regionas": this.state.form.Regionas,
-                    "Rajonas": this.state.form.Rajonas,
-                    "Pasto_kodas": this.state.form.Pasto_kodas,
-                    "Ilguma": this.state.form.Ilguma,
-                    "Platuma": this.state.form.Platuma,
-                    "padalinio_pavadinimas": this.state.form.padalinio_pavadinimas,
-                    "Gatve": this.state.form.Gatve
-                })
-            })
-            .then(response => {
-                if (response.status == 200) {
-                    this.setState({showModal: false});
-                    this.fetchData();
-                }
-            });
-        }
+        
+        let link = config.server + (this.state.update ? '/produkcija/redaguoti' : '/produkcija/prideti');
+        let body = Object.assign({}, this.state.form, {Tiekiamas: this.state.form.Tiekiamas ? '1' : '0'});
+        fetch(link, {
+            method: "POST",
+            headers: {
+                "Accept": "application/json",
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(body)
+        })
+        .then(response => {
+            if (response.status == 200) {
+                this.setState({showModal: false});
+                this.fetchData();
+            }
+        });
     }
     addError(m){
         this.setState({
@@ -300,7 +267,7 @@ class Produkcija extends React.Component {
         let eilutes = [];
         let tiekimas = '';
         let filt=[<option value="" key={-1}>Visos kategorijos</option>];
-        let filt2=[<option value="" key={-1}>Visi padaliniai</option>];
+        let filt2=[<option value="" key={-1}>Visos prekės kataloge</option>];
 
         for(let i = 0; i < this.state.data.data.length; i++){
             let a = this.state.data.data[i];
@@ -318,12 +285,16 @@ class Produkcija extends React.Component {
                 }
                 eilutes.push(
                     <tr key={i} className="aprasymas">
+                        <td><Link id="forButtons" to={'/produkcija/' + a.Barkodas}>{a.Barkodas} </Link></td>
                         <td>{a.Pavadinimas}</td>
                         <td>{a.Vieneto_kaina} &euro;</td>
+                        <td>{a.Kiekis}</td>
                         <td>{a.padalinio_pavadinimas}</td>
                         <td>{tiekimas}</td>
+                        {["1","2"].indexOf(this.props.rangas) != "-1" ? 
                         <td><a id="ForButtons" delete={a.Barkodas} onClick={this.TrinamLauk}><span class="glyphicon glyphicon-trash"> </span></a> <div className="vr">
                             </div> <a id="ForButtons" update={a.Barkodas} onClick={this.OpenUpdate}>Redaguoti</a></td>
+                        : null }
                     </tr>
                     );
                 if(a.Aprasymas != ""){
@@ -369,11 +340,15 @@ class Produkcija extends React.Component {
             <table style={{ width: "100%", borderCollapse: "collapse"}}>
                 <tbody>
                     <tr>
+                        <th>Barkodas</th>
                         <th>Pavadinimas</th>
-                        <th>Kaina</th>   
+                        <th>Kaina</th> 
+                        <th>Kiekis</th>  
                         <th>Padalinys</th>
                         <th>Tiekiama</th>
-                        <th id="Insert"><a onClick={this.OpenModal}>+</a></th>
+                        {["1","2"].indexOf(this.props.rangas) != "-1" ?
+                        <th id="Insert"><a onClick={this.OpenModal}>+</a></th> :
+                        null}
                         </tr>
                  {eilutes}
              </tbody>
@@ -395,8 +370,7 @@ class Produkcija extends React.Component {
                                     placeholder="pvz.: 123456" 
                                     value={this.state.form.Barkodas} 
                                     fieldname='Barkodas' 
-                                    onChange={this.handleFormChange}
-                                    
+                                    onChange={this.handleFormChange}                
                                 />
                             </FormGroup> :
                             <FormGroup controlId='Barkodas' validationState={this.validate('Barkodas')}>
@@ -407,7 +381,6 @@ class Produkcija extends React.Component {
                                     value={this.state.form.Barkodas} 
                                     fieldname='Barkodas' 
                                     onChange={this.handleFormChange}
-                                    
                                 />
                             </FormGroup>
                         }
@@ -507,8 +480,14 @@ class Produkcija extends React.Component {
                 </form>
             </Modal>
         </div>
-        );
-    }
+            );
+        }
 }    
 
-export default Produkcija;
+export default connect(
+    state => {
+        return {
+            rangas: state.user.rangas.id
+        }
+    }
+)(Produkcija);

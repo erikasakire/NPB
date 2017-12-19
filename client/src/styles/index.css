@@ -26,6 +26,9 @@ body {
 .textAlign-center {
   text-align: center;
 }
+.no-outline {
+  outline: none;
+}
 /** Style for exacts elements **/
 #entry {
   /** fullscreen **/
@@ -45,6 +48,9 @@ body {
 #sidebar .navTitle {
   font-size: 52px;
   color: #98878F;
+}
+#sidebar a {
+  background-color: #192231;
 }
 #sidebar a:hover {
   color: #98878F;

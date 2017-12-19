@@ -1,10 +1,6 @@
 {
-<<<<<<< HEAD
     "padaliniai": "Padaliniai",
-    "produkcija": "Produkcija"
-=======
-    "padaliniai" : "Padaliniai",
+    "produkcija": "Produkcija",
     "uzsakymuvykdymas": "Uzsakymu_Vykdymas",
     "sistemosprieinamumas": "Sistemos_Prieinamumas"
->>>>>>> master
 }

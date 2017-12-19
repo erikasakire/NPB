@@ -46,7 +46,7 @@ class Response{
             $this->sent = true;
         }
         else{
-            return Exception('Response is already sent');
+            return new Exception('Response is already sent');
         }
     }
 
