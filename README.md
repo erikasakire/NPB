@@ -306,6 +306,7 @@ Toliau pateikiamos funkcijų leidimų lentelės kiekvienai posistemei. Sutartini
     |Redaguoti esamą produktą|-|-|+|+|
     |Ištrinti esamą produktą|-|-|+|+|
     |Peržiūrėti produkcijos judėjimo ataskaitą [1]|-|-|+|+|
+    
     [1] - Darbuotojams ir vairuotojams navigacijos panelėje (<code>sidebar</code>) neturi būti rodoma šio puslapio nuoroda.
 
 * ### Sistemos prieinamumo posistemė:
@@ -325,6 +326,7 @@ Toliau pateikiamos funkcijų leidimų lentelės kiekvienai posistemei. Sutartini
     |Pakeisti vartotojo rangą|-|-|-|+|
     |Prisijungti į sistemą|+|+|+|+|
     |Atsijungti nuo sistemos|+|+|+|+|
+    
     [1] - Darbuotojams ir vairuotojams navigacijos panelėje (<code>sidebar</code>) neturi būti rodoma šio puslapio nuoroda.
 
 * ### Užsakymų vykdymas:
@@ -336,6 +338,7 @@ Toliau pateikiamos funkcijų leidimų lentelės kiekvienai posistemei. Sutartini
     |Pakeisti užsakymo būseną|-|-|[1]|+|
     |Vairuotojui priskirti užskymus|-|-|+|+|
     |Vairuotojui priskirti transportą|-|-|+|+|
+    
     [1] - Pakeisti užsakymo redaktorius gali tokiais atvėjais:
     1. Redaktorius yra užsakymo sukūrėjas, toda jis gali užsakymą atšaukti.
     1. Redaktoriaus padalinys yra užsakymo subjektas (<code>Iš padalinio</code>) (yra siunčiamos prekės į pastarajį padalinį ar prašoma prekių iš jo), tada pastarojo padalinio redaktorius gali atšaukti užsakymą.
@@ -359,5 +362,6 @@ Toliau pateikiamos funkcijų leidimų lentelės kiekvienai posistemei. Sutartini
     |Pašalinti transporto priemonę|-|-|-|+|
     |Redaguoti transporto priemonę|-|-|-|+|
     |Nustatyti transporto priemonės užimtumo būseną|-|*|[2]|+|
+    
     [1] - Darbuotojams ir vairuotojams navigacijos panelėje <br/>
     [2] - Redaktorius gali pakeisti transporto priemonės užimtumo būseną tada, kada visi vairuotojo užsakymai yra įvykdyti.
