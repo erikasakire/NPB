@@ -185,56 +185,56 @@ class Padalinys extends React.Component {
         }
         return(
             <div id="wraper" >
-                    <h2 style={{
-                            textAlign: "center",
-                            color: "#985E6D",
-                            paddingBottom: "50px"
-                        }}>Padalinio informacija</h2>           
-                        
-                    <div style={{ marginLeft: "50px"}}>
-                        {padaliniai}
-                        <hr/>
-                    </div>
-               
-                    <div>
-                        <h3 style={{color: "#985E6D"}}>Prėkes padalinyje:</h3>
-                    </div>
+                <h2 style={{
+                        textAlign: "center",
+                        color: "#985E6D",
+                        paddingBottom: "50px"
+                    }}>Padalinio informacija</h2>           
                     
-                    <table style={{ width: "100%"}}>
-                        <tbody>
-                            <tr>
-                                <th>Barkodas</th>
-                                <th>Pavadinimas</th>
-                                <th>Kaina</th>   
-                                <th>Padalinys</th>
-                                <th>Tiekiama</th>
-                                <th></th>
-                            </tr>
-                            {produktai}
-                        </tbody>
-                    </table>     
+                <div style={{ marginLeft: "50px"}}>
+                    {padaliniai}
+                    <hr/>
+                </div>
+        
+                <div>
+                    <h3 style={{color: "#985E6D"}}>Prėkes padalinyje:</h3>
+                </div>
+                
+                <table style={{ width: "100%"}}>
+                    <tbody>
+                        <tr>
+                            <th>Barkodas</th>
+                            <th>Pavadinimas</th>
+                            <th>Kaina</th>   
+                            <th>Padalinys</th>
+                            <th>Tiekiama</th>
+                            <th></th>
+                        </tr>
+                        {produktai}
+                    </tbody>
+                </table>     
 
-                    <div>
-                        <h3 style={{color: "#985E6D"}}>Dirbantys darbuotojai:</h3>
-                    </div>
-                    {["1"].indexOf(this.props.rangas) != "-1" ?
-                    <div style={{textAlign: "right"}}>
-                        <a onClick={this.OpenModal} style={{textDecoration: "none", color: "#494E68", cursor: "pointer", fontWeight: "bold"}}>Pasamdyti naują darbuotoją + </a>
-                    </div> :
-                    null}
-                    <table style={{ width: "100%"}}>
-                        <tbody>
-                            <tr>
-                                <th>Tabelio numeris</th> 
-                                <th>Vardas</th>
-                                <th>Pavardė</th>  
-                                <th>Issilavinimas</th>
-                                <th></th>
-                            </tr>
-                            {dirbantys}
-                        </tbody>
-                    </table>  
-                    {this.state.showModal == false ? null :  
+                <div>
+                    <h3 style={{color: "#985E6D"}}>Dirbantys darbuotojai:</h3>
+                </div>
+                {["1"].indexOf(this.props.rangas) != "-1" ?
+                <div style={{textAlign: "right"}}>
+                    <a onClick={this.OpenModal} style={{textDecoration: "none", color: "#494E68", cursor: "pointer", fontWeight: "bold"}}>Pasamdyti naują darbuotoją + </a>
+                </div> :
+                null}
+                <table style={{ width: "100%"}}>
+                    <tbody>
+                        <tr>
+                            <th>Tabelio numeris</th> 
+                            <th>Vardas</th>
+                            <th>Pavardė</th>  
+                            <th>Issilavinimas</th>
+                            <th></th>
+                        </tr>
+                        {dirbantys}
+                    </tbody>
+                </table>  
+                {this.state.showModal == false ? null :  
                 <Modal show={this.state.showModal} onHide={()=>{this.setState({showModal:false})}} >
                     <form onSubmit={this.handleSubmit}>
                         <ModalHeader closeButton>

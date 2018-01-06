@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import config from '../config.json';
 import { connect } from "react-redux";
 import { Redirect } from "react-router-dom";
+import {NotificationContainer, NotificationManager} from 'react-notifications';
 
 class Produkcija extends React.Component {
     constructor(props){
@@ -271,6 +272,7 @@ class Produkcija extends React.Component {
 
         for(let i = 0; i < this.state.data.data.length; i++){
             let a = this.state.data.data[i];
+            console.log(a.Matavimo_vnt);
             if(this.state.selectedFiltras != "" && a.Kategorija_Kategorija_id != this.state.selectedFiltras ){
                 continue;
             }
@@ -288,12 +290,14 @@ class Produkcija extends React.Component {
                         <td><Link id="forButtons" to={'/produkcija/' + a.Barkodas}>{a.Barkodas} </Link></td>
                         <td>{a.Pavadinimas}</td>
                         <td>{a.Vieneto_kaina} &euro;</td>
-                        <td>{a.Kiekis}</td>
+                        {this.state.selectedFiltras2 == "" ? null :
+                        <td>{a.Kiekis}</td>}
+                        {a.Matavimo_vnt != "" ? 
+                        <td>{a.Matavimo_vnt}</td> : <td>Vnt.</td>} 
                         <td>{a.padalinio_pavadinimas}</td>
                         <td>{tiekimas}</td>
                         {["1","2"].indexOf(this.props.rangas) != "-1" ? 
-                        <td><a id="ForButtons" delete={a.Barkodas} onClick={this.TrinamLauk}><span class="glyphicon glyphicon-trash"> </span></a> <div className="vr">
-                            </div> <a id="ForButtons" update={a.Barkodas} onClick={this.OpenUpdate}>Redaguoti</a></td>
+                        <td><a id="ForButtons" delete={a.Barkodas} onClick={this.TrinamLauk}><span class="glyphicon glyphicon-trash"> </span></a> <br/> <a id="ForButtons" update={a.Barkodas} onClick={this.OpenUpdate}>Redaguoti</a></td>
                         : null }
                     </tr>
                     );
@@ -322,164 +326,166 @@ class Produkcija extends React.Component {
             )
         }
         return(
-        <div id="wraper">
-        <h2 style={{
-                    textAlign: "center",
-                    color: "#985E6D"
-                }}>Produkcija</h2>
-        <FormGroup> <ControlLabel>Kategorijos:</ControlLabel> 
-        <FormControl componentClass="select" defaultValue={this.state.selectedFiltras} onChange={(e) => {this.setState({selectedFiltras: e.target.value})}}>
-            {filt}
-            </FormControl>
-        </FormGroup>
-            <FormGroup> <ControlLabel>Padalinys:</ControlLabel> 
-        <FormControl componentClass="select" defaultValue={this.state.selectedFiltras2} onChange={(e) => {this.setState({selectedFiltras2: e.target.value})}}>
-            {filt2}
-            </FormControl>
-            </FormGroup>        
-            <table style={{ width: "100%", borderCollapse: "collapse"}}>
-                <tbody>
-                    <tr>
-                        <th>Barkodas</th>
-                        <th>Pavadinimas</th>
-                        <th>Kaina</th> 
-                        <th>Kiekis</th>  
-                        <th>Padalinys</th>
-                        <th>Tiekiama</th>
-                        {["1","2"].indexOf(this.props.rangas) != "-1" ?
-                        <th id="Insert"><a onClick={this.OpenModal}>+</a></th> :
-                        null}
-                        </tr>
-                 {eilutes}
-             </tbody>
-            </table>
+            <div id="wraper">
+                <h2 style={{
+                            textAlign: "center",
+                            color: "#985E6D"
+                        }}>Produkcija</h2>
+                <FormGroup> <ControlLabel>Kategorijos:</ControlLabel> 
+                <FormControl componentClass="select" defaultValue={this.state.selectedFiltras} onChange={(e) => {this.setState({selectedFiltras: e.target.value})}}>
+                    {filt}
+                    </FormControl>
+                </FormGroup>
+                    <FormGroup> <ControlLabel>Padalinys:</ControlLabel> 
+                <FormControl componentClass="select" defaultValue={this.state.selectedFiltras2} onChange={(e) => {this.setState({selectedFiltras2: e.target.value})}}>
+                    {filt2}
+                </FormControl>
+                </FormGroup>        
+                <table style={{ width: "100%", borderCollapse: "collapse"}}>
+                    <tbody>
+                        <tr>
+                            <th>Barkodas</th>
+                            <th>Pavadinimas</th>
+                            <th>Kaina</th> 
+                            {this.state.selectedFiltras2 == "" ? null :
+                            <th>Kiekis</th>}
+                            <th>Matavimo vienetai</th>
+                            <th>Padalinys</th>
+                            <th>Tiekiama</th>
+                            {["1","2"].indexOf(this.props.rangas) != "-1" ?
+                            <th id="Insert"><a onClick={this.OpenModal}>+</a></th> :
+                            null}
+                            </tr>
+                    {eilutes}
+                </tbody>
+                </table>
 
-            <Modal show={this.state.showModal} onHide={()=>{this.setState({showModal:false})}} >
-                <form onSubmit={this.handleSubmit}>
-                    <ModalHeader closeButton>
-                        <ModalTitle> Įveskite produkto duomenis: </ModalTitle>
-                    </ModalHeader>
-                    <ModalBody>
-                        { this.state.error == undefined ? null : <p>{this.state.error}</p>}
-                        { this.state.update == true ? 
-                            <FormGroup controlId='Barkodas' validationState={this.validate('Barkodas')}>
-                                <ControlLabel> Barkodas:</ControlLabel>
+                <Modal show={this.state.showModal} onHide={()=>{this.setState({showModal:false})}} >
+                    <form onSubmit={this.handleSubmit}>
+                        <ModalHeader closeButton>
+                            <ModalTitle> Įveskite produkto duomenis: </ModalTitle>
+                        </ModalHeader>
+                        <ModalBody>
+                            { this.state.error == undefined ? null : <p>{this.state.error}</p>}
+                            { this.state.update == true ? 
+                                <FormGroup controlId='Barkodas' validationState={this.validate('Barkodas')}>
+                                    <ControlLabel> Barkodas:</ControlLabel>
+                                    <FormControl 
+                                        type="text" 
+                                        disabled= "true"
+                                        placeholder="pvz.: 123456" 
+                                        value={this.state.form.Barkodas} 
+                                        fieldname='Barkodas' 
+                                        onChange={this.handleFormChange}                
+                                    />
+                                </FormGroup> :
+                                <FormGroup controlId='Barkodas' validationState={this.validate('Barkodas')}>
+                                    <ControlLabel> Barkodas:</ControlLabel>
+                                    <FormControl 
+                                        type="text" 
+                                        placeholder="pvz.: 123456" 
+                                        value={this.state.form.Barkodas} 
+                                        fieldname='Barkodas' 
+                                        onChange={this.handleFormChange}
+                                    />
+                                </FormGroup>
+                            }
+                            <FormGroup controlId='Pavadinimas' validationState={this.validate('Pavadinimas')}>
+                                <ControlLabel>Pavadinimas:</ControlLabel>
                                 <FormControl 
                                     type="text" 
-                                    disabled= "true"
-                                    placeholder="pvz.: 123456" 
-                                    value={this.state.form.Barkodas} 
-                                    fieldname='Barkodas' 
-                                    onChange={this.handleFormChange}                
-                                />
-                            </FormGroup> :
-                            <FormGroup controlId='Barkodas' validationState={this.validate('Barkodas')}>
-                                <ControlLabel> Barkodas:</ControlLabel>
+                                    placeholder="pvz.: Relė" 
+                                    value={this.state.form.Pavadinimas} 
+                                    fieldname='Pavadinimas' 
+                                    onChange={this.handleFormChange}/>
+                            </FormGroup>
+                            <FormGroup controlId='Vieneto_kaina' validationState={this.validate('Vieneto_kaina')}>
+                                <ControlLabel>Vieneto kaina:</ControlLabel>
                                 <FormControl 
                                     type="text" 
-                                    placeholder="pvz.: 123456" 
-                                    value={this.state.form.Barkodas} 
-                                    fieldname='Barkodas' 
+                                    placeholder="pvz.: 15.99" 
+                                    value={this.state.form.Vieneto_kaina} 
+                                    fieldname='Vieneto_kaina' 
+                                    onChange={this.handleFormChange}/>
+                            </FormGroup>
+                            <FormGroup controlId='Aprasymas' validationState={this.validate('Aprasymas')}>
+                                <ControlLabel>Aprašymas:</ControlLabel>
+                                <FormControl 
+                                    type="text" 
+                                    placeholder="" 
+                                    value={this.state.form.Aprasymas} 
+                                    fieldname='Aprasymas' 
+                                    onChange={this.handleFormChange}/>
+                            </FormGroup>
+                            <FormGroup controlId='Matavimo_vnt' validationState={this.validate('Matavimo_vnt')}>
+                                <ControlLabel>Matavimo vienetai:</ControlLabel>
+                                <FormControl 
+                                    type="text" 
+                                    placeholder="pvz.: cm"  
+                                    value={this.state.form.Matavimo_vnt} 
+                                    fieldname='Matavimo_vnt' 
+                                    onChange={this.handleFormChange}/>
+                            </FormGroup>
+                            <FormGroup controlId='Gamintojas' validationState={this.validate('Gamintojas')}>
+                                <ControlLabel>Gamintojas:</ControlLabel>
+                                <FormControl 
+                                    type="text"  
+                                    placeholder="pvz.: Maxima"  
+                                    value={this.state.form.Gamintojas} 
+                                    fieldname='Gamintojas' 
+                                    onChange={this.handleFormChange}/>
+                            </FormGroup>
+                            <FormGroup controlId='PavadinimasEN' validationState={this.validate('PavadinimasEN')}>
+                                <ControlLabel>Pavadinimas angliškai:</ControlLabel>
+                                <FormControl 
+                                    type="text" 
+                                    placeholder="pvz.: cable" 
+                                    value={this.state.form.PavadinimasEN} 
+                                    fieldname='PavadinimasEN' 
+                                    onChange={this.handleFormChange}/>
+                            </FormGroup>
+                            <FormGroup controlId='Pagaminimo_data' validationState={this.validate('Pagaminimo_data')}>
+                                <ControlLabel>Pagaminimo data:</ControlLabel>
+                                <FormControl 
+                                    type="date" 
+                                    value={this.state.form.Pagaminimo_data.substring(0, 10)} 
+                                    fieldname='Pagaminimo_data' 
                                     onChange={this.handleFormChange}
                                 />
                             </FormGroup>
-                        }
-                        <FormGroup controlId='Pavadinimas' validationState={this.validate('Pavadinimas')}>
-                            <ControlLabel>Pavadinimas:</ControlLabel>
-                            <FormControl 
-                                type="text" 
-                                placeholder="pvz.: Relė" 
-                                value={this.state.form.Pavadinimas} 
-                                fieldname='Pavadinimas' 
-                                onChange={this.handleFormChange}/>
-                        </FormGroup>
-                        <FormGroup controlId='Vieneto_kaina' validationState={this.validate('Vieneto_kaina')}>
-                            <ControlLabel>Vieneto kaina:</ControlLabel>
-                            <FormControl 
-                                type="text" 
-                                placeholder="pvz.: 15.99" 
-                                value={this.state.form.Vieneto_kaina} 
-                                fieldname='Vieneto_kaina' 
-                                onChange={this.handleFormChange}/>
-                        </FormGroup>
-                        <FormGroup controlId='Aprasymas' validationState={this.validate('Aprasymas')}>
-                            <ControlLabel>Aprašymas:</ControlLabel>
-                            <FormControl 
-                                type="text" 
-                                placeholder="" 
-                                value={this.state.form.Aprasymas} 
-                                fieldname='Aprasymas' 
-                                onChange={this.handleFormChange}/>
-                        </FormGroup>
-                        <FormGroup controlId='Matavimo_vnt' validationState={this.validate('Matavimo_vnt')}>
-                            <ControlLabel>Matavimo vienetai:</ControlLabel>
-                            <FormControl 
-                                type="text" 
-                                placeholder="pvz.: cm"  
-                                value={this.state.form.Matavimo_vnt} 
-                                fieldname='Matavimo_vnt' 
-                                onChange={this.handleFormChange}/>
-                        </FormGroup>
-                        <FormGroup controlId='Gamintojas' validationState={this.validate('Gamintojas')}>
-                            <ControlLabel>Gamintojas:</ControlLabel>
-                            <FormControl 
-                                type="text"  
-                                placeholder="pvz.: Maxima"  
-                                value={this.state.form.Gamintojas} 
-                                fieldname='Gamintojas' 
-                                onChange={this.handleFormChange}/>
-                        </FormGroup>
-                        <FormGroup controlId='PavadinimasEN' validationState={this.validate('PavadinimasEN')}>
-                            <ControlLabel>Pavadinimas angliškai:</ControlLabel>
-                            <FormControl 
-                                type="text" 
-                                placeholder="pvz.: cable" 
-                                value={this.state.form.PavadinimasEN} 
-                                fieldname='PavadinimasEN' 
-                                onChange={this.handleFormChange}/>
-                        </FormGroup>
-                        <FormGroup controlId='Pagaminimo_data' validationState={this.validate('Pagaminimo_data')}>
-                            <ControlLabel>Pagaminimo data:</ControlLabel>
-                            <FormControl 
-                                type="date" 
-                                value={this.state.form.Pagaminimo_data.substring(0, 10)} 
-                                fieldname='Pagaminimo_data' 
-                                onChange={this.handleFormChange}
-                            />
-                        </FormGroup>
-                        <FormGroup controlId='Galioja_iki' validationState={this.validate('Galioja_iki')}>
-                            <ControlLabel>Galiojimo data:</ControlLabel>
-                            <FormControl 
-                                type="date" 
-                                value={this.state.form.Galioja_iki.substring(0, 10)} 
-                                fieldname='Galioja_iki' 
-                                onChange={this.handleFormChange}/>
-                        </FormGroup>
-                        <FormGroup>
-                        <ControlLabel>Ar tiekiama:</ControlLabel>
-                            <FormControl componentClass="select" placeholder="pasirinkite" fieldname= "Tiekiamas" onChange={this.handleFormChange} defaultValue={this.state.form.Kategorija_Kategorija_id}>
-                                <option  value={true}>Taip</option>
-                                <option value={false}>Ne</option>
-                            </FormControl>
-                         </FormGroup>
-                        { this.state.update == true ? null :
+                            <FormGroup controlId='Galioja_iki' validationState={this.validate('Galioja_iki')}>
+                                <ControlLabel>Galiojimo data:</ControlLabel>
+                                <FormControl 
+                                    type="date" 
+                                    value={this.state.form.Galioja_iki.substring(0, 10)} 
+                                    fieldname='Galioja_iki' 
+                                    onChange={this.handleFormChange}/>
+                            </FormGroup>
                             <FormGroup>
-                                <ControlLabel>Kategorija:</ControlLabel>
-                                <FormControl componentClass="select" placeholder="pasirinkite" fieldname= "Kategorija_Kategorija_id" onChange={this.handleFormChange}>
-                                    {this.state.form == this.formInitialState ? null :
-                                        <option value={this.state.form.Kategorija_Kategorija_id}>{this.state.form.Kategorija_Kategorija_id}</option>
-                                    }
-                                    {filt}
+                            <ControlLabel>Ar tiekiama:</ControlLabel>
+                                <FormControl componentClass="select" placeholder="pasirinkite" fieldname= "Tiekiamas" onChange={this.handleFormChange} defaultValue={this.state.form.Kategorija_Kategorija_id}>
+                                    <option  value={true}>Taip</option>
+                                    <option value={false}>Ne</option>
                                 </FormControl>
                             </FormGroup>
-                        }
-                    </ModalBody>
-                    <ModalFooter>
-                        <Button type="submit">Patvirtinti</Button>
-                    </ModalFooter>
-                </form>
-            </Modal>
-        </div>
+                            { this.state.update == true ? null :
+                                <FormGroup>
+                                    <ControlLabel>Kategorija:</ControlLabel>
+                                    <FormControl componentClass="select" placeholder="pasirinkite" fieldname= "Kategorija_Kategorija_id" onChange={this.handleFormChange}>
+                                        {this.state.form == this.formInitialState ? null :
+                                            <option value={this.state.form.Kategorija_Kategorija_id}>{this.state.form.Kategorija_Kategorija_id}</option>
+                                        }
+                                        {filt}
+                                    </FormControl>
+                                </FormGroup>
+                            }
+                        </ModalBody>
+                        <ModalFooter>
+                            <Button type="submit">Patvirtinti</Button>
+                        </ModalFooter>
+                    </form>
+                </Modal>
+            </div>
             );
         }
 }    

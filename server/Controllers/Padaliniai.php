@@ -18,7 +18,7 @@ class Padaliniai extends Controller{
         parent::__construct($params, $urlParams, $type);
 
         $this->get('/visi', [$this, 'visiPadaliniai']); 
-        $this->get('Darbuotojas/:id', [$this,'darbuotojoInformacija']);
+        $this->get('darbuotojas/:id', [$this,'darbuotojoInformacija']);
         $this->get('/:id', [$this,'Padalinys']);
 
         $this->post('/prideti', [$this, 'PridetiNaujaPadalini']);
@@ -98,7 +98,8 @@ class Padaliniai extends Controller{
                 WHERE darbuotojas.Tabelio_nr 
                 NOT IN (SELECT dirbapadalinyje.Darbuotojas_Tabelio_nr FROM dirbapadalinyje)
                 AND darbuotojas.Tabelio_nr
-                NOT IN (SELECT padalinys.Redaktorius FROM padalinys)");
+                NOT IN (SELECT padalinys.Redaktorius FROM padalinys)
+                AND darbuotojas.Rangas_id = 2");
         return $duomenys;
     }
 
@@ -279,14 +280,12 @@ class Padaliniai extends Controller{
         $result = $db->numRows_String("
             SELECT * 
             FROM padalinio_produktas 
-            LEFT JOIN padalinys ON padalinys.Inventorinis_numeris = padalinio_produktas.Padalinys_Inventorinis_numeris 
-            WHERE padalinys.Inventorinis_numeris = ::invNumeris", array(
+            WHERE padalinio_produktas.Padalinys_Inventorinis_numeris = ::invNumeris", array(
                 "invNumeris" => $req->getBody('Inventorinis_numeris')
             ));
         if($result){
-            http_response_code(400);
             $res->addResponseData('Padalinyje yra ' . $result . ' prekių');
-            $res->send();
+            $res->send(Response::BAD_REQUEST);
         }
         else{
             $result = $db->Transaction(array(
@@ -303,14 +302,12 @@ class Padaliniai extends Controller{
 
             if ($result){
                 /** OK */
-                http_response_code(200);
-                $res->send();
+                $res->send(Response::OK);
             }
             else{
                 /** Error */
-                http_response_code(400);
                 $res->addResponseData('transakcijos erroras');                
-                $res->send();
+                $res->send(Response::BAD_REQUEST);
             }
         }
     }

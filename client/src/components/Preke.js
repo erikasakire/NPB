@@ -126,8 +126,7 @@ class Preke extends React.Component {
                     <div style={{ flex: "0.7", marginLeft: "50px"}}>
                         {padaliniai}
                         <hr/>
-                    </div>
-                    
+                    </div>   
                 </div>
             </div>
         );

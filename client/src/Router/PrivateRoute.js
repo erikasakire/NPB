@@ -8,7 +8,7 @@ class PrivateRoute extends React.Component{
         return <Route 
                     exact={this.props.exact} 
                     path={this.props.path}
-                    render={() => {return this.props.logged ? <this.props.component {...this.props}/> : <Redirect to={this.props.fallback}/>}}
+                    render={() => {return (this.props.logged ? <this.props.component {...this.props}/> : <Redirect to={this.props.fallback}/>)}}
                 />
         
     }

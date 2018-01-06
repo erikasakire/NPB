@@ -1,64 +1,84 @@
 /** Norint naudoti šį failą reikia turėti VS Code papildinį Easy LESS **/
+
 body {
-  margin: 0;
-  padding: 0;
-  font-family: 'Roboto', sans-serif;
+    margin: 0;
+    padding: 0;
+    font-family: 'Roboto', sans-serif;
 }
+
+
 /** fast access properties **/
+
 .dflex {
-  display: flex;
+    display: flex;
 }
+
 .verticalFlex {
-  flex-direction: column;
+    flex-direction: column;
 }
+
 .horizontalFlex {
-  flex-direction: row;
+    flex-direction: row;
 }
+
 .flex {
-  flex: 1;
+    flex: 1;
 }
+
 .fullHeight {
-  height: 100%;
+    height: 100%;
 }
+
 .fullWidth {
-  width: 100%;
+    width: 100%;
 }
+
 .textAlign-center {
-  text-align: center;
+    text-align: center;
 }
+
 .no-outline {
-  outline: none;
+    outline: none;
 }
+
 .pointer {
-  cursor: pointer;
+    cursor: pointer;
 }
+
+
 /** Style for exacts elements **/
+
 #entry {
-  /** fullscreen **/
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
+    /** fullscreen **/
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
 }
+
 #sidebar {
-  min-width: 250px;
-  max-width: 250px;
-  overflow: hidden;
-  background: #192231;
-  font-size: 20px;
+    min-width: 250px;
+    max-width: 250px;
+    overflow: hidden;
+    background: #192231;
+    font-size: 20px;
 }
+
 #sidebar .navTitle {
-  font-size: 52px;
-  color: #6a95d1;
+    font-size: 52px;
+    color: #6a95d1;
 }
+
 #sidebar a {
-  background-color: #192231;
+    background-color: #192231;
 }
+
 #sidebar a:hover {
-  color: #98878F;
-  background-color: #192231 !important;
+    color: #98878F;
+    background-color: #192231 !important;
 }
+
 #sidebar a:hover,
 #sidebar a:active,
 #sidebar li:hover,
@@ -66,68 +86,79 @@ body {
 #sidebar ul:active,
 #sidebar a:focus,
 #sidebar li:focus {
-  color: #98878F;
-  background-color: #192231 !important;
-  outline: none;
+    color: #98878F;
+    background-color: #192231 !important;
+    outline: none;
 }
+
 #main {
-  flex: 1;
-  overflow: auto;
-  padding-bottom: 25px;
-  box-sizing: border-box;
+    flex: 1;
+    overflow: auto;
+    padding-bottom: 25px;
+    box-sizing: border-box;
 }
+
 body {
-  margin: 0;
-  padding: 0;
-  font-family: sans-serif;
+    margin: 0;
+    padding: 0;
+    font-family: sans-serif;
 }
+
 #table {
-  font-family: arial, sans-serif;
-  width: 100%;
-  padding: 15px;
-  box-sizing: border-box;
-  background-color: transparent;
-  cursor: default;
+    font-family: arial, sans-serif;
+    width: 100%;
+    padding: 15px;
+    box-sizing: border-box;
+    background-color: transparent;
+    cursor: default;
 }
+
 #table th,
 #table td {
-  border-left: none;
-  border-right: none;
-  text-align: center;
-  padding: 8px;
-  border-top: 1px solid #cacaca;
-  border-bottom: 1px solid #cacaca;
+    border-left: none;
+    border-right: none;
+    text-align: center;
+    padding: 8px;
+    border-top: 1px solid #cacaca;
+    border-bottom: 1px solid #cacaca;
 }
+
 #table th {
-  font-size: 18px;
+    font-size: 18px;
 }
+
 #table a:hover {
-  transition-duration: 0.3s;
-  color: #98878F;
-  cursor: pointer;
+    transition-duration: 0.3s;
+    color: #98878F;
+    cursor: pointer;
 }
+
 #table a {
-  width: 150px;
-  text-align: center;
-  text-decoration: none;
-  color: #494E68;
-  font-weight: bold;
+    width: 150px;
+    text-align: center;
+    text-decoration: none;
+    color: #494E68;
+    font-weight: bold;
 }
+
 #table .statusMessage {
-  height: 80px;
-  font-size: 22px;
-  letter-spacing: 2px;
-  color: #a1a1a1;
-  font-weight: 400;
+    height: 80px;
+    font-size: 22px;
+    letter-spacing: 2px;
+    color: #a1a1a1;
+    font-weight: 400;
 }
+
 .labelValue {
-  display: flex;
+    display: flex;
 }
-.labelValue > * {
-  flex: 1;
+
+.labelValue>* {
+    flex: 1;
 }
+
 .box {
-  margin-left: 5px;
-  padding: 0px 5px;
-  box-sizing: border-box;
+    margin-left: 5px;
+    padding: 0px 5px;
+    box-sizing: border-box;
 }

@@ -1,3 +1,5 @@
 #dependencies
 /client/node_modules
+/node_modules
 /.vscode
+/server/Extras/database.config.php

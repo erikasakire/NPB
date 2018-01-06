@@ -2,6 +2,7 @@
 import React from 'react';
 import { BrowserRouter as WebRouter, Route, Link, Redirect, Switch } from 'react-router-dom';
 import { Nav, NavItem } from 'react-bootstrap';
+import {NotificationContainer} from 'react-notifications';
 
 /** Redux imports */
 import { connect } from 'react-redux';
@@ -97,8 +98,11 @@ class Router extends React.Component {
                             <PrivateRoute path="/vehicle" component={Vehicles}/>
 
                         </Switch>
+                        <NotificationContainer/>
+                        <footer> NBP grupė, Informatikos fakultetas, Kaunas 2018 </footer>
                     </div>
                 </div>
+                
             </WebRouter>
         )
     }

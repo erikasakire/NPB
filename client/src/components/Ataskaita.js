@@ -205,7 +205,7 @@ class Ataskaita extends React.Component {
         }
         
 
-        return(
+        return( 
             <div id="wraper" >
                     <h2 style={{
                             textAlign: "center",
@@ -218,14 +218,13 @@ class Ataskaita extends React.Component {
                             {filtras}
                         </FormControl>
                     </FormGroup>
-               
+            
                     <div>
                         <h3 style={{color: "#985E6D"}}>Ataskaitos:</h3>
                     </div>
-                   {padaliniai} 
-                   {judejimas}
+                {padaliniai} 
+                {judejimas}
             </div>
-            
         );
     }
 }
