@@ -197,7 +197,7 @@ class Padalinys extends React.Component {
                 </div>
         
                 <div>
-                    <h3 style={{color: "#985E6D"}}>Prėkes padalinyje:</h3>
+                    <h3 style={{color: "#985E6D"}}>Prekės padalinyje:</h3>
                 </div>
                 
                 <table style={{ width: "100%"}}>
