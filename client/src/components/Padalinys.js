@@ -2,6 +2,7 @@ import React from 'react';
 import { Modal, ModalHeader, ModalTitle, ModalFooter, ModalBody, Button, FormControl,FormGroup, ControlLabel} from 'react-bootstrap';
 import { connect } from 'react-redux';
 import config from '../config.json';
+import {NotificationContainer, NotificationManager} from 'react-notifications';
 
 class Padalinys extends React.Component {
     constructor(props){
@@ -24,7 +25,9 @@ class Padalinys extends React.Component {
         this.OpenModal = this.OpenModal.bind(this);
         this.handleFormChange = this.handleFormChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
-        
+        this.showNotification = this.showNotification.bind(this);
+        this.getSelectedOption = this.getSelectedOption.bind(this);  
+        this.TrinamLauk = this.TrinamLauk.bind(this);      
     }
     
     componentWillMount(){
@@ -37,7 +40,6 @@ class Padalinys extends React.Component {
         .then(response => response.json())
         .then(response => {
            this.setState({data: response});
-            console.log(response);
         })
     }
    
@@ -56,9 +58,8 @@ class Padalinys extends React.Component {
         .then(response => {
             if (response.status == 200) {
                 this.fetchData();
+                NotificationManager.success("Darbuotojas sėkmingai ištrintas.");
             }
-            console.log(response.status);
-            console.log(response.text());
         })
     }
     OpenModal(e){       
@@ -72,7 +73,7 @@ class Padalinys extends React.Component {
     handleSubmit(e){
         e.preventDefault();
 
-        if (this.state.form == null){
+        if (this.getSelectedOption("worker_select") == null){
             return this.addError('Prašome pasirinkti darbuotoją');
         }
         else{
@@ -83,21 +84,62 @@ class Padalinys extends React.Component {
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
-                    "darbuotojas": this.state.form,
-                    "padaliniys": this.props.computedMatch.params.id
+                    "darbuotojas": this.getSelectedOption("worker_select"),
+                    "padaliniys": this.state.data.data[0].Inventorinis_numeris
                 })
             })
         .then(response => {
             if(response.status == 200){
                 this.setState({showModal: false});
                 this.fetchData();
+                NotificationManager.success("Darbuotojas sėkmingai pasamdytas.");
             }
         })
         }
     }
+    getSelectedOption(id){
+        let selectObject = document.getElementById(id);
+        if (selectObject == undefined){
+              return null;
+        }
+        let options = selectObject.options;
+        for(let i = 0; i < options.length; i++){
+              if (options[i].selected){
+                    return options[i].value;
+              }
+        }
+
+        return null;
+  }
     addError(m){
         this.setState({
             error: m
+        })
+    }
+    showNotification(e){
+        if (this.state.data.data.length == 0){
+            return 0;
+        }
+       
+        NotificationManager.warning("Nėra laisvų darbuotojų.");
+    }
+    TrinamLauk(e){
+        let pa = e.target.parentNode.attributes['pa'].nodeValue;
+        let id = e.target.parentNode.attributes['delete'].nodeValue;
+        console.log(pa);
+        console.log(id);
+        fetch('http://localhost:8081/api/padaliniai/salintiProdukta/' + pa + '/' + id, {
+            method: "POST",
+            headers:{
+                "Accept": "application/json",
+                "Content-Type": "application/json"
+            }
+        })
+        .then(response => {
+            if (response.status == 200) {
+                this.fetchData();
+                NotificationManager.success("Produktas sėkmingai ištrintas iš padalinio.");
+            }
         })
     }
     render(){
@@ -106,9 +148,10 @@ class Padalinys extends React.Component {
         let tiekimas = '';
         let dirbantys = [];
         let samd= [];
-
+        let padal = '';
         for(let i = 0; i< this.state.data.data.length; i++){
             let b = this.state.data.data[i];
+            padal=b.Inventorinis_numeris;
             padaliniai.push(
                 <div>
                 <div style={{ backgroundColor: "#192231"}}>
@@ -156,6 +199,14 @@ class Padalinys extends React.Component {
                     <td>{a.Vieneto_kaina} &euro;</td>
                     <td>{a.padalinio_pavadinimas}</td>
                     <td>{tiekimas}</td>
+                      {/** Prekės ištrynimo ir redagavimo mygtukai. Spausdinami tik redaktoriui ir administratoriui. */}
+                      {
+                        ["1","2"].indexOf(this.props.rangas) != "-1" ? 
+                        <td>
+                            <a id="ForButtons" delete={a.Barkodas} pa={padal} onClick={this.TrinamLauk}><span class="glyphicon glyphicon-trash"> </span></a> 
+                        </td> : 
+                        null 
+                    }
                 </tr>
             );
         }
@@ -163,7 +214,6 @@ class Padalinys extends React.Component {
         for(let i = 0; i < this.state.data.dirbantys.length; i++){
             let c = this.state.data.dirbantys[i];
   
-            console.log(c);
             dirbantys.push(
                 <tr key={i} className="aprasymas">
                     <td>{c.Darbuotojas_Tabelio_nr}</td>
@@ -171,7 +221,7 @@ class Padalinys extends React.Component {
                     <td>{c.Pavarde}</td>
                     <td>{c.Issilavinimas}</td>
                     {["1"].indexOf(this.props.rangas) != "-1" ?
-                    <td><a style={{color: "#985E6D", textDecoration: "none", cursor:"pointer"}}atleidimas={c.Darbuotojas_Tabelio_nr} onClick={this.AtleidziamDarbutojas}>Atleisti</a></td> :
+                    <td><a style={{color: "#985E6D", textDecoration: "none", cursor:"pointer"}} atleidimas={c.Darbuotojas_Tabelio_nr} onClick={this.AtleidziamDarbutojas}>Atleisti</a></td> :
                     null}
                 </tr>
             );
@@ -191,7 +241,7 @@ class Padalinys extends React.Component {
                         paddingBottom: "50px"
                     }}>Padalinio informacija</h2>           
                     
-                <div style={{ marginLeft: "50px"}}>
+                <div style={{ marginLeft: "50px", minWidth: "160px"}}>
                     {padaliniai}
                     <hr/>
                 </div>
@@ -219,10 +269,10 @@ class Padalinys extends React.Component {
                 </div>
                 {["1"].indexOf(this.props.rangas) != "-1" ?
                 <div style={{textAlign: "right"}}>
-                    <a onClick={this.OpenModal} style={{textDecoration: "none", color: "#494E68", cursor: "pointer", fontWeight: "bold"}}>Pasamdyti naują darbuotoją + </a>
+                    <a onClick={this.state.data.laisvi.length > 0? this.OpenModal: this.showNotification} style={{textDecoration: "none", color: "#494E68", cursor: "pointer", fontWeight: "bold"}}>Pasamdyti naują darbuotoją + </a>
                 </div> :
                 null}
-                <table style={{ width: "100%"}}>
+                <table style={{ width: "100%", marginBottom: "40px"}}>
                     <tbody>
                         <tr>
                             <th>Tabelio numeris</th> 
@@ -242,9 +292,9 @@ class Padalinys extends React.Component {
                         </ModalHeader>
                         <ModalBody>
                             { this.state.error == undefined ? null : <p>{this.state.error}</p>}
-                                <FormGroup>
-                                    <ControlLabel>Pasirinkite redaktorių:</ControlLabel>
-                                    <FormControl componentClass="select" placeholder="pasirinkite" fieldname= "Darbuotojas_Tabelio_nr" onChange={this.handleFormChange}>
+                                <FormGroup controlId="worker_select">
+                                    <ControlLabel>Pasirinkite darbuotoją:</ControlLabel>
+                                    <FormControl componentClass="select" placeholder="pasirinkite" fieldname= "Darbuotojas_Tabelio_nr">
                                         {samd}
                                     </FormControl>
                                 </FormGroup>

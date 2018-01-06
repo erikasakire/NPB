@@ -59,6 +59,11 @@ class Produkcija extends React.Component {
                 nullable: true,
                 unique: false
             },
+            Kiekis: {
+                regex: /^(-?)[0-9]+(\.[0-9]+)?$/,
+                nullable: false,
+                unique: false
+            },
             Matavimo_vnt: {
                 regex: /[a-zA-Z0-9]/,
                 nullable: true,
@@ -214,8 +219,14 @@ class Produkcija extends React.Component {
         if (this.state.form.Tiekiamas == ""){
             return this.addError('Pasirinkite ar tiekiama ar ne.');
         }
+        if (this.state.form.Kiekis == ""){
+            return this.addError('Nurodykite prekės kiekį');
+        }
         if (this.state.form.Kategorija_Kategorija_id == ""){
             return this.addError('Pasirinkite kategoriją.');
+        }
+        if (this.state.form.Padalinys_id == ""){
+            return this.addError('Pasirinkite padalinį.');
         }
         if(this.state.form.Galioja_iki < this.state.form.Pagaminimo_data){
             return this.addError('Galiojimo data negali būti ankstesnė nei pagaminimo data.')
@@ -487,6 +498,17 @@ class Produkcija extends React.Component {
                                     onChange={this.handleFormChange}/>
                             </FormGroup>
 
+                            {/** Prekės kiekis */}
+                            <FormGroup controlId='Kiekis' validationState={this.validate('Kiekis')}>
+                                <ControlLabel>Kiekis:</ControlLabel>
+                                <FormControl 
+                                    type="text" 
+                                    placeholder="pvz.: 15"  
+                                    value={this.state.form.Kiekis} 
+                                    fieldname='Kiekis' 
+                                    onChange={this.handleFormChange}/>
+                            </FormGroup>
+
                             {/** Prekės matavimo vienetas */}
                             <FormGroup controlId='Matavimo_vnt' validationState={this.validate('Matavimo_vnt')}>
                                 <ControlLabel>Matavimo vienetai:</ControlLabel>
@@ -555,7 +577,19 @@ class Produkcija extends React.Component {
                                 <FormGroup>
                                     <ControlLabel>Kategorija:</ControlLabel>
                                     <FormControl componentClass="select" placeholder="pasirinkite" fieldname= "Kategorija_Kategorija_id" onChange={this.handleFormChange}>
+                                        <option></option>
                                         {filt}
+                                    </FormControl>
+                                </FormGroup>
+                            }
+
+                            {/** Prekė padaliniui */}
+                            { this.state.update == true ? null :
+                                <FormGroup>
+                                    <ControlLabel>Padalinys:</ControlLabel>
+                                    <FormControl componentClass="select" placeholder="pasirinkite" fieldname= "Padalinys_id" onChange={this.handleFormChange}>
+                                        <option></option>
+                                        {filt2}
                                     </FormControl>
                                 </FormGroup>
                             }

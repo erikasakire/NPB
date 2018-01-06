@@ -54,30 +54,29 @@ class Preke extends React.Component {
                     <div style={{backgroundColor:"rgb(196, 201, 228)"}}>
                     <h4 style={{marginTop:"0px"}}>Barkodas:</h4>
                     <h3>{a.Barkodas}</h3>
-                    <hr/>
+        
                     <h4>Produkto pavadinimas:</h4>
                     <h3>{a.Pavadinimas}</h3>
-                    <hr/>
+          
                     <h4>Kategorija:</h4>
                     <h3>{a.Kategorijos_pavadinimas}</h3>
-                    <hr/>
+             
                     <h4>Ar vykdomas tiekimas:</h4>
                     <h3>{e}</h3>
-                    <hr/>
+        
                     <h4>Vieneto kaina:</h4>
                     <h3>{a.Vieneto_kaina} &euro;</h3>
-                    <hr/>
+        
                     <h4>Gamintojas:</h4>
                     <h3>{a.Gamintojas}</h3>
-                    <hr/>
+  
                     <h4>Pagaminimo data:</h4>
                     <h3>{a.Pagaminimo_data.substring(0,10)}</h3>
-                    <hr/>
+
                     <h4>Galioja iki:</h4>
                     <h3>{a.Galioja_iki.substring(0,10)}</h3>
                     {a.Aprasymas != "" ?
                        <div>
-                            <hr/>
                             <div>
                                 <h4>Aprašymas:</h4>
                                 <h3>{a.Aprasymas}</h3>
@@ -91,25 +90,16 @@ class Preke extends React.Component {
         }
         for(let i = 0; i< this.state.data.data.length; i++){
             let b = this.state.data.data[i];
-            padaliniai.push(
-                <div>
-             <ul style={{ listStyle: "none", margin:"0", border: "1px solid #dadadada" }}>
-                <li style={{fontWeight: "600"}}>Padaliniai, kuriuose prekė yra: </li>
-            </ul>
-            <div style={{overflow: "auto",  border: "1px solid #dadadada"}}>
-                <h4>Inventorinis numeris:</h4>
-                <p>{b.Inventorinis_numeris}</p>
-                <h4>Pavadinimas</h4>
-                <p>{b.padalinio_pavadinimas}</p>
-                <h4>Šalis:</h4>
-                <p>{b.Salis}</p>
-                <h4>Miestas:</h4>
-                <p>{b.Miestas}</p>
-                <h4 style={{fontWeight: "bold"}}>Prekės kiekis šiame padalinyje:</h4>
-                    <h3>{b.Kiekis} {b.Matavimo_vnt != null? null: b.Matavimo_vnt}</h3>
-                <hr/>
-            </div>
-            </div>
+            console.log(b);
+            console.log(this.state.data.data.length);
+            padaliniai.push(              
+                <tr key={i} className="aprasymas">
+                    <td>{b.Inventorinis_numeris}</td>
+                    <td>{b.padalinio_pavadinimas}</td>
+                    <td>{b.Salis}</td>
+                    <td>{b.Miestas}</td>
+                    <td>{b.Kiekis} {b.Matavimo_vnt != ""? "Vnt.": b.Matavimo_vnt}</td>
+                </tr>
             );
         }
         return(
@@ -119,15 +109,28 @@ class Preke extends React.Component {
                     color: "#985E6D",
                     paddingBottom: "50px"
                 }}>Produkto informacija</h2>
-                <div style={{ display: "flex" }}>
-                    <div style={{ flex: "1", marginLeft:"-80px" }}>
-                        {eilutes}
-                    </div>
-                    <div style={{ flex: "0.7", marginLeft: "50px"}}>
-                        {padaliniai}
-                        <hr/>
-                    </div>   
+           
+                <div style={{ minWidth:"160px" }}>
+                    {eilutes}
                 </div>
+                <h2 style={{
+                        textAlign: "center",
+                        color: "#985E6D",
+                        paddingBottom: "50px"
+                    }}>Padaliniai, kuriuose yra prekė</h2> 
+
+                <table style={{ width: "100%", marginBottom: "40px"}}>
+                    <tbody>
+                        <tr>
+                            <th>Inventorinis numeris</th>
+                            <th>Pavadinimas</th>
+                            <th>Šalis</th>
+                            <th>Miestas</th>
+                            <th>Prekės kiekis šiame padalinyje</th>
+                        </tr>
+                        {padaliniai}
+                    </tbody>
+                </table>   
             </div>
         );
     }
