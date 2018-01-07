@@ -28,6 +28,7 @@ class Response{
         else {
             $this->responseData[$key] = $data;
         }
+        return $this;
     }
 
     /** Sends response back to cliet */

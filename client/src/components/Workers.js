@@ -1,6 +1,9 @@
+/** Module imports */
 import React from "react";
 import { connect } from 'react-redux';
 import { Redirect } from 'react-router-dom';
+
+/** JSON imports */
 import config from '../config.json';
 
 class Workers extends React.Component{
@@ -98,7 +101,7 @@ class Workers extends React.Component{
 
         return(
             <div>
-                <h2 className="title">Darbuotojų duomenys</h2>
+                <h2 className="Title">Darbuotojų duomenys</h2>
                 <table id="table">
                     <tbody>
                         <tr>
