@@ -79,7 +79,7 @@ class Controller {
             $matched = false;
             if (count($params) == count($urlParams)){
                 $matched = true;
-                $req = new Request();
+                $req = new Request($this->type);
 
                 for($i = 0; $i < count($params); $i++){
                     if (substr($params[$i], 0, 1) != ":"){
