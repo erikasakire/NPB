@@ -3,11 +3,17 @@
 class Request {
     public $params;
     public $body;
+    private $_requestType;
 
     /** Creates instance of Request class */
-    public function __construct() {
+    public function __construct(String $requestType = null) {
         $this->params = array();
         $this->body = array();
+        $this->_requestType = $requestType;
+    }
+
+    public function getRequestType(){
+        return $this->_requestType;
     }
 
     /**

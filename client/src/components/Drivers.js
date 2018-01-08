@@ -456,10 +456,6 @@ class Drivers extends React.Component{
 
 
     render(){
-        if (["1", "2"].indexOf(this.props.rangas) == -1){
-            return <Redirect to='/'/>;
-        }
-
         /** Drivers table */
         let rows = null;
         if(this.state.data.empty){
@@ -762,7 +758,7 @@ class Drivers extends React.Component{
 
         return(
             <div>
-                <h2 className="title">Vairuotojų duomenys</h2>
+                <h2 className="Title">Vairuotojų duomenys</h2>
                 <table id="table">
                     <tbody>
                         <tr>

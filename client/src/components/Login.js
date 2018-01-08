@@ -2,14 +2,13 @@
 import React from 'react';
 import { Modal, ModalHeader, ModalTitle, ModalBody, ModalFooter, FormGroup, FormControl, ControlLabel, Button} from 'react-bootstrap';
 import { withRouter } from 'react-router-dom';
-
+import Cookies from 'js-cookie';
 /** Redux components */
 import { connect } from 'react-redux';
 import { login_user as accessControlLogin } from '../store/actions/loginActions';
 
 /** Configuration imports */
 import config from '../config.json';
-
 
 class Login extends React.Component{
     constructor(props){
@@ -22,8 +21,8 @@ class Login extends React.Component{
             error: undefined
         };
 
-        this.handleSubmit = this.handleSubmit.bind(this);
-        this.addError = this.addError.bind(this);
+        this.handleSubmit   = this.handleSubmit.bind(this);
+        this.addError       = this.addError.bind(this);
     }
 
     handleSubmit(e){
@@ -36,17 +35,7 @@ class Login extends React.Component{
             return this.addError('Prašome įvesti slaptažodį');
         }
 
-        fetch(config.server + '/sistemosprieinamumas/prisijungti', {
-            method: "POST",
-            headers: {
-                "Accept": "application/json",
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                "username": this.state.username,
-                "password": this.state.password
-            })
-        })
+        Login.tryLogin(this.state.username, this.state.password)
         .then(response => {
             if (response.status == 400){
                 this.addError('Blogi prisijungimo duomenys');
@@ -54,19 +43,34 @@ class Login extends React.Component{
             }
 
             if (response.status == 200){
-                return response.json();
-            }
-        })
-        .then(response => {
-            if(response == null){
-                return null;
-            }
-            response.username = this.state.username;
-            console.log(response);
-            this.props.loginAction(response);
-            this.props.history.push('/');
-        })
+                return response.json()
+                .then(response => {
+                    response.username = this.state.username;
 
+                    Cookies.set("username", response.username,  {expires: 2});
+                    Cookies.set("secret", response.accessKey, {expires: 2});
+
+                    this.props.loginAction(response);
+                    this.props.history.push('/');
+                });
+            }
+        });
+    }
+
+    static tryLogin(username, password){
+        console.log(username);
+        console.log(password);
+        return fetch(config.server + '/sistemosprieinamumas/prisijungti', {
+            method: "POST",
+            headers: {
+                "Accept": "application/json",
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                "username": username,
+                "password": password
+            })
+        });
     }
 
     addError(message){
@@ -121,10 +125,10 @@ export default withRouter(connect(
                 return dispatch(accessControlLogin({
                             key: data.accessKey,
                             name: data.username,
-                            Vardas: data.data.Vardas,
-                            Pavarde: data.data.Pavarde,
-                            Pareigos: data.data.Pareigos,
-                            PareiguKodas: data.data.PareiguKodas 
+                            Vardas: data.Vardas,
+                            Pavarde: data.Pavarde,
+                            Pareigos: data.Pareigos,
+                            PareiguKodas: data.PareiguKodas 
                         }));
             }
         }

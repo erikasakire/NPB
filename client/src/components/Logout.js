@@ -2,6 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { Redirect } from 'react-router-dom';
 import { logout_user } from '../store/actions/loginActions';
+import Cookies from 'js-cookie';
 
 class Logout extends React.Component{
 
@@ -11,6 +12,8 @@ class Logout extends React.Component{
     
 
     render(){
+        Cookies.remove("username");
+        Cookies.remove("secret");
         return <Redirect to='/'/>;
     }
 }
