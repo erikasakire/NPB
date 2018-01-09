@@ -2,7 +2,6 @@
 import React from 'react';
 import { BrowserRouter as WebRouter, Route, Link, Redirect, Switch } from 'react-router-dom';
 import { Nav, NavItem } from 'react-bootstrap';
-import {NotificationContainer} from 'react-notifications';
 
 /** Notifications */
 import { NotificationContainer } from 'react-notifications';
