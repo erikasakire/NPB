@@ -2,6 +2,7 @@ import React from 'react';
 import { Modal, ModalHeader, ModalTitle, ModalFooter, ModalBody, Button, FormControl,FormGroup, ControlLabel} from 'react-bootstrap';
 import { connect } from "react-redux";
 import { Redirect } from "react-router-dom";
+import config from '../config.json'
 
 class Preke extends React.Component {
     constructor(props){
