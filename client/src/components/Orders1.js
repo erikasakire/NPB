@@ -3,6 +3,7 @@ import React from 'react'
 import { Modal, ModalHeader, ModalTitle, ModalFooter, ModalBody, Button, FormControl,FormGroup, ControlLabel, ModalDialog} from 'react-bootstrap';
 import '../styles/index.css';
 import '../styles/extra.css';
+import config from '../config.json';
 
 //import 'react-table/react-table.css'
 
@@ -101,7 +102,7 @@ class  Orders extends React.Component {
     }
 
     fetchData (){
-        fetch('http://localhost:8081/api/Uzsakymai/sarasas', {
+        fetch(config.server + '/Uzsakymai/sarasas', {
             method: "GET"
         })
         .then(response => response.json())
@@ -175,7 +176,7 @@ class  Orders extends React.Component {
     cancelOrder(e){
         console.log(e); 
         let id = e.target.parentNode.attributes['cancel'].nodeValue;
-        fetch('http://localhost:8081/api/Uzsakymai/atsaukti', {
+        fetch(config.server + '/Uzsakymai/atsaukti', {
             method: "POST",
             headers:{
                 "Accept": "application/json",
@@ -263,7 +264,7 @@ class  Orders extends React.Component {
         console.log(this.state.update);
         if(this.state.update == false){
             console.log(this.state.form);
-            fetch('http://localhost:8081/api/Uzsakymai/prideti', {
+            fetch(config.server + '/Uzsakymai/prideti', {
                 method: "POST",
                 headers: {
                     "Accept": "application/json",
@@ -304,7 +305,7 @@ class  Orders extends React.Component {
  
         }
         else{
-            fetch('http://localhost:8081/api/Uzsakymai/redaguoti', {
+            fetch(config.server + '/Uzsakymai/redaguoti', {
                 method: "POST",
                 headers: {
                     "Accept": "application/json",
@@ -349,7 +350,7 @@ class  Orders extends React.Component {
             return this.addError('Prašome įvesti transporto priemonės aukštį.');
         }*/
 
-        fetch('http://localhost:8081/api/Uzsakymai/keisti_pr', {
+        fetch(config.server + '/Uzsakymai/keisti_pr', {
             method: "POST",
             headers: {
                 "Accept": "application/json",
@@ -650,8 +651,13 @@ class  Orders extends React.Component {
         return (
             <div className="">
                 <div className="">
-                    <div className="">
-                        <table id="">
+                    <div id="wraper">
+                    <h2 style={{
+                        textAlign: "center",
+                        color: "#985E6D",
+                        paddingBottom: "50px"
+                    }}>Užsakymai</h2>
+                        <table style={{width: "100%"}}>
                             <thead>
                                 <tr>
                                     <th>

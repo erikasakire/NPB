@@ -3,6 +3,7 @@ import React from 'react'
 import { Modal, ModalHeader, ModalTitle, ModalFooter, ModalBody, Button, FormControl,FormGroup, ControlLabel, ModalDialog} from 'react-bootstrap';
 import '../styles/index.css';
 import '../styles/extra.css';
+import config from '../config.json';
 
 //import 'react-table/react-table.css'
 
@@ -179,7 +180,7 @@ class  Vechiles extends React.Component {
     }
 
     fetchData (){
-        fetch('http://localhost:8081/api/Transporto_priemones/sarasas', {
+        fetch(config.server + '/Transporto_priemones/sarasas', {
             method: "GET"
         })
         .then(response => response.json())
@@ -239,7 +240,7 @@ class  Vechiles extends React.Component {
     deleteData(e){
         console.log(e); 
         let id = e.target.parentNode.attributes['delete'].nodeValue;
-        fetch('http://localhost:8081/api/Transporto_priemones/salinti', {
+        fetch(config.server + '/Transporto_priemones/salinti', {
             method: "POST",
             headers:{
                 "Accept": "application/json",
@@ -327,7 +328,7 @@ class  Vechiles extends React.Component {
         console.log(this.state.update);
         if(this.state.update == false){
             console.log(this.state.form);
-            fetch('http://localhost:8081/api/Transporto_priemones/prideti', {
+            fetch(config.server + '/Transporto_priemones/prideti', {
                 method: "POST",
                 headers: {
                     "Accept": "application/json",
@@ -368,7 +369,7 @@ class  Vechiles extends React.Component {
  
         }
         else{
-            fetch('http://localhost:8081/api/Transporto_priemones/redaguoti', {
+            fetch(config.server + '/Transporto_priemones/redaguoti', {
                 method: "POST",
                 headers: {
                     "Accept": "application/json",
@@ -698,7 +699,12 @@ class  Vechiles extends React.Component {
         }
 
         return (
-            <div className="">
+            <div id="wraper">
+            <h2 style={{
+                    textAlign: "center",
+                    color: "#985E6D",
+                    paddingBottom: "50px"
+                }}>Transporto priemonės</h2>
                 <div className="">
                     <div className="">
                         <table id="">

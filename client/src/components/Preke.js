@@ -21,7 +21,7 @@ class Preke extends React.Component {
         this.fetchData();
     }
     fetchData (){
-        fetch('http://localhost:8081/api/produkcija/Produktas/' + this.props.computedMatch.params.id, {
+        fetch(config.server + '/produkcija/Produktas/' + this.props.computedMatch.params.id, {
             method: "GET"
         })
         .then(response => response.json())

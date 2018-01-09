@@ -757,7 +757,7 @@ class Drivers extends React.Component{
         }
 
         return(
-            <div>
+            <div id="wraper">
                 <h2 className="Title">Vairuotojų duomenys</h2>
                 <table id="table">
                     <tbody>

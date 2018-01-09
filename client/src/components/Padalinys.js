@@ -34,7 +34,7 @@ class Padalinys extends React.Component {
         this.fetchData();
     }
     fetchData (){
-        fetch('http://localhost:8081/api/padaliniai/' + this.props.computedMatch.params.id, {
+        fetch(config.server + '/padaliniai/' + this.props.computedMatch.params.id, {
             method: "GET"
         })
         .then(response => response.json())
@@ -45,7 +45,7 @@ class Padalinys extends React.Component {
    
     AtleidziamDarbutojas(e){
         let id = e.target.attributes['atleidimas'].nodeValue;
-        fetch('http://localhost:8081/api/padaliniai/atleistiDarb', {
+        fetch(config.server + '/padaliniai/atleistiDarb', {
             method: "POST",
             headers:{
                 "Accept": "application/json",
@@ -128,7 +128,7 @@ class Padalinys extends React.Component {
         let id = e.target.parentNode.attributes['delete'].nodeValue;
         console.log(pa);
         console.log(id);
-        fetch('http://localhost:8081/api/padaliniai/salintiProdukta/' + pa + '/' + id, {
+        fetch(config.server + '/padaliniai/salintiProdukta/' + pa + '/' + id, {
             method: "POST",
             headers:{
                 "Accept": "application/json",

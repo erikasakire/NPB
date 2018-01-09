@@ -100,7 +100,7 @@ class Workers extends React.Component{
         }
 
         return(
-            <div>
+            <div id="wraper">
                 <h2 className="Title">Darbuotojų duomenys</h2>
                 <table id="table">
                     <tbody>
