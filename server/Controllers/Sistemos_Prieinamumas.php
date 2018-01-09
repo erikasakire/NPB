@@ -16,23 +16,31 @@ class Sistemos_Prieinamumas extends Controller {
     public function __construct($params, $urlParams, $type) {
         parent::__construct($params, $urlParams, $type);
 
+        /** Duomenų peržiūra */
         $this->get('/darbuotojai', [$this, 'Duomenys_Apie_Darbuotojus']);
         $this->get('/vairuotojai', [$this, 'Vairuotojai']);
         
-        $this->get('/vartotojas/:username', [$this, "Vartotojas"]);
-        $this->post('/vartotojas/:username', [$this, "Vartotojas"]);
+        /** Vartotojo informacijos valdymas */
+        $this->get('/vartotojas/:username',  [$this, "Redaguoti_Darbuotojo_Duomenis"]);
+        $this->post('/vartotojas/:username', [$this, "Redaguoti_Darbuotojo_Duomenis"]);
 
-        $this->post('/registruoti/darbuotojas', [$this, 'Darbuotoju_Registravimas']);
-        $this->post('/registruoti/vairuotojas', [$this, 'Vairuotoju_Registravimas']);
-        $this->post('/atnaujinti/asmuo', [$this, 'Redaguoti_Darbuotojo_Duomenis']);
-        $this->post('/atnaujinti/ranga', [$this, 'Darbuotojo_Rango_Nustatymas']);
+        /** Darbuotojo rango informacijos valdymas */
+        $this->get( '/atnaujinti/ranga/:rangas', [$this, 'Darbuotojo_Rango_Nustatymas']);
+        $this->post('/atnaujinti/ranga',         [$this, 'Darbuotojo_Rango_Nustatymas']);
+
+        /** Darbuotoju registracija */
+        $this->get ('/registruoti/:rangas',     [$this, 'Darbuotoju_Registravimas']);
+        $this->post('/registruoti/:kategorija', [$this, 'Darbuotoju_Registravimas']);
+
+        /** Prisijungimas */
         $this->post('/prisijungti', [$this, 'Darbuotojo_Registracija']);
         
 
         $this->mapToMethod($this);
     }
 
-    public function Vartotojas(Request $req , Response $res){
+    #region vartotojo informacijos valdymas
+    public function Redaguoti_Darbuotojo_Duomenis(Request $req , Response $res){
         switch($req->getRequestType()){
             
             case typesEnumerator::GET: {
@@ -196,107 +204,92 @@ class Sistemos_Prieinamumas extends Controller {
     private function GenerateAccessKey($password){
         return password_hash(hash("sha256", $password), PASSWORD_BCRYPT);
     }
+    #endregion
 
+    #region Darbuotojų registravimas
+    public function Darbuotoju_Registravimas(Request $req, Response $res){
+        switch($req->getRequestType()){
+            case typesEnumerator::GET:{
+                return $this->GetPosibleRights($req->params["rangas"]);
+            }
+            case typesEnumerator::POST:{
+                switch($req->params["kategorija"]){
+                    case 1:
+                    case "darbuotojas":
+                    
+                        $username = substr($req->body["name"], 0, 3) . substr($req->body["surname"]) . substr($req->body["personId"], -2, 2);
+                        $password = "laikinas";
 
-    /**
-     * Naujo darbuotojo pridėjimas į sistemą.
-     */
-    public function Darbuotoju_Registravimas (Request $req, Response $res){
-        $db = new Database();
+                        $b = new Database();
+                        $result = $db->Transaction(
+                            $this->NaujasAsmuo(
+                                $req->body["personId"],
+                                $req->body["name"],
+                                $req->body["surname"],
+                                $req->body["phone"],
+                                $req->body["email"],
+                                $req->body["birthDate"],
+                                $req->body["healthInsurance"],
+                                $req->body["livingIn"],
+                                $req->body["degree"]
+                            ),
+                            $this->NaujaRegistracija(
+                                $username,
+                                $password
+                            ),
+                            $this->NaujasDarbuotojas(
+                                $req->body["dirbaNuo"],
+                                $req->body["etatas"],
+                                $req->body["rangas"],
+                                $req->body["personId"],
+                                $username
+                            )
+                        );
+                        
+                        if ($result){
+                            $res->send(Response::OK);
+                        }
+                        else {
+                            $res->send(Response::BAD_REQUEST);
+                        }
 
-        $successful = $db->Transaction(array(
-            Query::generate('
-                INSERT INTO `asmuo`(
-                    `AsmensKodas`, 
-                    `Vardas`, 
-                    `Pavarde`, 
-                    `Telefono_nr`,
-                    `Epastas`,
-                    `Gyvenamoji_vieta`,
-                    `Gimimo_data`,
-                    `Issilavinimas`,
-                    `Sveikatos_draudimas`
-                ) VALUES (
-                    ::asmenskodas,
-                    ::vardas,
-                    ::pavarde,
-                    ::telefononr,
-                    ::epastas,
-                    ::gyvenamojivieta,
-                    ::gimimodata,
-                    ::issilavinimas,
-                    ::sveikatosdraudimas
-                )
-             ', array(
-                "asmenskodas" => $req->body['AsmensKodas'],
-                "vardas" => $req->body['Vardas'],
-                "pavarde" => $req->body['Pavarde'],
-                "telefononr" => $req->body['Tabelio_nr'],
-                "epastas" => $req->body['Epastas'],
-                "gyvenamojivieta" => $req->body['Gyvenamoji_vieta'],
-                "gimimodata" => $req->body['Gimimo_data'],
-                "issilavinimas" => $req->body['Issilavinimas'],
-                "sveikatosdraudimas" => $req->body['Sveikatos_draudimas'] ? 1 : 0,
-            )),
-            Query::generate('
-                INSERT INTO `registracija`(
-                    `Prisijungimo_vardas`, 
-                    `Slaptazodis`, 
-                    `Prisijungimo_klausimas`, 
-                    `Prisijungimo_atsakymas`
-                ) VALUES (
-                    ::regist, 
-                    ::pass, 
-                    ::question, 
-                    ::answer
-                )
-             ', array(
-                "regist" => $req->body['Vardas'],
-                "pass" => $req->body['Pavarde'],
-                "question" => "Kas aš?",
-                "answer" => $req->body['Vardas'],
-            )),
-            Query::generate('
-                INSERT INTO `darbuotojas`(
-                    `Tabelio_nr`, 
-                    `Dirba_nuo`,
-                    `Alyginimas`,
-                    `Etatas`,
-                    `Stazas`,
-                    `Rangas_id`,
-                    `Asmuo_AsmensKodas`,
-                    `Registracija_Prisijungimo_vardas`
-                ) VALUES (
-                    ::tabnr,
-                    ::dirbanuo,
-                    ::atlyginimas,
-                    ::etatas,
-                    ::stazas,
-                    ::rangas,
-                    ::asmenskodas,
-                    ::regist
-                )
-             ', array(
-                "tabnr" => $req->body['Tabelio_nr'],
-                "dirbanuo" => (new DateTime())->format("YYYY-mm-dd"),
-                "atlyginimas" => 1000,
-                "etatas" => 1,
-                "stazas" => "",
-                "rangas" => 3,
-                "asmenskodas" => $req->body['AsmensKodas'],
-                "regist" => $req->body['Vardas'],
-            ))
-        ));
-
-        if ($successful){
-            $res->send();        
-        }
-        else {
-            $res->send(Response::BAD_REQUEST);
+                        break;
+                    case 2:
+                    case "vairuotojas":
+                        break;
+                    default:
+                        break;
+                }
+            }
         }
     }
 
-    public function Vairuotoju_Registravimas (Request $req, Response $res){
+    private function NaujasDarbuotojas($workingFrom, $atatas, $rangas, $personId, $username){
+        return Query::generate('
+            INSERT INTO `darbuotojas`(
+                `Tabelio_nr`, 
+                `Dirba_nuo`,
+                `Etatas`,
+                `Rangas_id`,
+                `Asmuo_AsmensKodas`,
+                `Registracija_Prisijungimo_vardas`
+            ) VALUES (
+                (SELECT MAX(Tabelio_nr) + 1 FROM `darbuotojas`),
+                ::dirbanuo,
+                ::etatas,
+                ::rangas,
+                ::asmenskodas,
+                ::regist
+            )
+         ', array(
+            "dirbanuo" => $workingFrom,
+            "etatas" => $atatas,
+            "rangas" => $rangas,
+            "asmenskodas" => $personId,
+            "regist" => $username
+        ));
+    }
+    private function NaujasVairuotojas(){
         $db = new Database();
 
         $successful = $db->Transaction(array(
@@ -398,105 +391,123 @@ class Sistemos_Prieinamumas extends Controller {
             $res->send(Response::BAD_REQUEST);
         }
     }
-    /**
-     * Darbuotojo duomenų gavimas
-     */
-    public function Duomenys_Apie_Darbuotojus (Request $req, Response $res){
-        $db = new Database();
-        $result = $db->query_String('
-            SELECT 
-                /** Informacija apie darbuotoja **/
-                `darbuotojas`.`Tabelio_nr`, 
-                `darbuotojas`.`Dirba_nuo`, 
-                `darbuotojas`.`Alyginimas`, 
-                `darbuotojas`.`Etatas`, 
-                `darbuotojas`.`Stazas`, 
-                
-                /** informacija apie asmeni **/
-                `asmuo`.`AsmensKodas`,
-                `asmuo`.`Vardas`,
-                `asmuo`.`Pavarde`,
-                `asmuo`.`Telefono_nr`,
-                `asmuo`.`Epastas`,
-                `asmuo`.`Gyvenamoji_vieta`,
-                `asmuo`.`Gimimo_data`,
-                `asmuo`.`Issilavinimas`,
-                `asmuo`.`Sveikatos_draudimas`
-                
-                /** informacija apie prisijungimus **/
-                `registracija`.`Prisijungimo_vardas`,
-                `registracija`.`Prisijungimo_klausimas`,
-
-                `rangas`.`id`,
-                `rangas`.`rangai`
-                
-            FROM `darbuotojas` 
-            LEFT JOIN `asmuo` ON `asmuo`.`AsmensKodas` = `darbuotojas`.`Asmuo_AsmensKodas` 
-            LEFT JOIN `registracija` ON `registracija`.`Prisijungimo_vardas` = `darbuotojas`.`Registracija_Prisijungimo_vardas` 
-            LEFT JOIN `rangas` ON `rangas`.`id` = `darbuotojas`.`Rangas_id`
-         ');
-
-        if ($result){
-            if ($result->num_rows == 0){
-                return $res->send(Response::NO_CONTENT);
-            }
-            $result = $db->array_MysqliResult($result);
-            $res->addResponseData($result, "data");
-            return $res->send();
-        }
-        return $res->send(Response::BAD_REQUEST);
+    private function NaujasAsmuo($username, $name, $surname, $phone, $email, $bd, $hi, $livingIn = null, $degree = null){
+        return Query::generate("
+            INSERT INTO `asmuo`(
+                `AsmensKodas`, 
+                `Vardas`, 
+                `Pavarde`, 
+                `Telefono_nr`, 
+                `Epastas`, 
+                `Gyvenamoji_vieta`, 
+                `Gimimo_data`, 
+                `Issilavinimas`, 
+                `Sveikatos_draudimas`
+            ) VALUES (
+                ::1,
+                ::2,
+                ::3,
+                ::4,
+                ::5,
+                ::6,
+                ::7,
+                ::8,
+                ::9
+            )
+        ", array(
+            "1" => $username,
+            "2" => $name,
+            "3" => $surname,
+            "4" => $phone,
+            "5" => $email,
+            "6" => $livingIn,
+            "7" => $bd,
+            "8" => $degree,
+            "9" => $hi
+        ));
     }
-    /**
-     * Darbuotojo duomenų redagavimas
-     */
-    public function Redaguoti_Darbuotojo_Duomenis (Request $req, Response $res){
-        $db = new Database();
-        $successful = $db->query_Query(
-            Query::generate('
-                UPDATE `asmuo` SET
-                    `Vardas`              = ::vardas, 
-                    `Pavarde`             = ::pavarde, 
-                    `Telefono_nr`         = ::telefononr,
-                    `Epastas`             = ::epastas,
-                    `Gyvenamoji_vieta`    = ::gyvenamojivieta,
-                    `Gimimo_data`         = ::gimimodata,
-                    `Issilavinimas`       = ::issilavinimas,
-                    `Sveikatos_draudimas` = ::sveikatosdraudimas
-                WHERE
-                    `AsmensKodas`         = ::asmenskodas
-             ', array(
-                "asmenskodas"           => $req->body['asmenskodas'],
-                "vardas"                => $req->body['vardas'],
-                "pavarde"               => $req->body['pavarde'],
-                "telefononr"            => $req->body['telefononr'],
-                "epastas"               => $req->body['epastas'],
-                "gyvenamojivieta"       => $req->body['gyvenamojivieta'],
-                "gimimodata"            => $req->body['gimimodata'],
-                "issilavinimas"         => $req->body['issilavinimas'],
-                "sveikatosdraudimas"    => $req->body['sveikatosdraudimas'],
-            ))
-        );
+    private function NaujaRegistracija($username, $password){
+        return Query::generate("
+            INSERT INTO `registracija`(
+                `Prisijungimo_vardas`, 
+                `Slaptazodis`
+            ) VALUES (
+                ::1,
+                ::2
+            )
+         ", array(
+            "1" => $username,
+            "2" => hash("sha256",$password)
+         ));
     }
-    /**
-     * Pakeičiamas darbuotojo rangas
-     */
+    #endregion
+
+    #region Darbuotojo rango nustatymas
     public function Darbuotojo_Rango_Nustatymas (Request $req, Response $res){
+        switch($req->getRequestType()){
+            case typesEnumerator::GET: { /** Gaunamos galimų rangų reikšmės */
+                return $this->GetPosibleRights($req->params["rangas"]);
+            }
+            case typesEnumerator::POST: { /** Keičiamas rangas */
+                return $this->ChangeUserRights($req->body["user"], $req->body["rights"]);
+            }
+        }
+    }
+    private function GetPosibleRights($rights){
         $db = new Database();
-        $result = $db->query_String('
+        $res = new Response();
+
+        $result = $db->query_String("
+            SELECT
+                `rangas`.`rangai`,
+                `rangas`.`id`
+            FROM `rangas`
+            WHERE `rangas`.`id` > POW((::rangas - 1), 2)
+         ", array(
+            "rangas" => $rights
+        ));
+
+        if (!$result){
+            return 
+                $res->addResponseData("Įvyko klaida: " . $db->error(), "message")
+                    ->send(Response::BAD_REQUEST);
+        }
+
+        if ($result->num_rows == 0){
+            return 
+                $res->addResponseData("Negauta jokių duomenų.", "message")
+                    ->send(Response::NO_CONTENT);
+        }
+
+        $res->addResponseData($db->array_MysqliResult($result), "rights")
+            ->send(Response::OK);
+        return true;
+    }
+    private function ChangeUserRights($user, $rights){
+        $db = new Database();
+        $res = new Response();
+
+        $result = $db->query_String("
             UPDATE `darbuotojas`
             SET `darbuotojas`.`Rangas_id` = ::rangas
             WHERE `darbuotojas`.`Tabelio_nr` = ::tabnr
-         ', array(
-            "rangas" => $req->body['rangas'],
-            "tabnr" => $req->body['tabnr']
+         ", array(
+            "rangas" => $rights,
+            "tabnr" => $user
         ));
-        if ($result){
-            $res->send();
+
+        if (!$result){
+            return 
+                $res->addResponseData("Įvyko klaida: " . $db->error(), "message")
+                    ->send(Response::BAD_REQUEST);
         }
-        else {
-            $res->send(Response::BAD_REQUEST);
-        }
+
+        return 
+            $res->send(Response::OK);
     }
+    #endregion
+    
+    #region Prisijungimas
     /**
      * Esamo darbuotojo prisijungimas į sistemą.
      * @param Request $req - Gaunami duomenys:
@@ -609,7 +620,51 @@ class Sistemos_Prieinamumas extends Controller {
             ->addResponseData(password_hash(hash("sha256", $givenPassword), PASSWORD_BCRYPT), "accessKey")
             ->send(Response::OK);
     }
+    #endregion
 
+    #region Duomenų peržiura
+    public function Duomenys_Apie_Darbuotojus (Request $req, Response $res){
+        $db = new Database();
+        $result = $db->query_String('
+            SELECT 
+                /** Informacija apie darbuotoja **/
+                `darbuotojas`.`Tabelio_nr`, 
+                `darbuotojas`.`Dirba_nuo`, 
+                `darbuotojas`.`Alyginimas`, 
+                `darbuotojas`.`Etatas`, 
+                `darbuotojas`.`Stazas`, 
+                
+                /** informacija apie asmeni **/
+                `asmuo`.`AsmensKodas`,
+                `asmuo`.`Vardas`,
+                `asmuo`.`Pavarde`,
+                `asmuo`.`Telefono_nr`,
+                `asmuo`.`Epastas`,
+                `asmuo`.`Gyvenamoji_vieta`,
+                `asmuo`.`Gimimo_data`,
+                `asmuo`.`Issilavinimas`,
+                `asmuo`.`Sveikatos_draudimas`,
+                
+                `rangas`.`id`,
+                `rangas`.`rangai`
+                
+            FROM `darbuotojas` 
+            LEFT JOIN `asmuo` ON `asmuo`.`AsmensKodas` = `darbuotojas`.`Asmuo_AsmensKodas` 
+            LEFT JOIN `registracija` ON `registracija`.`Prisijungimo_vardas` = `darbuotojas`.`Registracija_Prisijungimo_vardas` 
+            LEFT JOIN `rangas` ON `rangas`.`id` = `darbuotojas`.`Rangas_id`
+         ');
+
+        if ($result){
+            if ($result->num_rows == 0){
+                return $res->send(Response::NO_CONTENT);
+            }
+            $result = $db->array_MysqliResult($result);
+            $res->addResponseData($result, "data");
+            return $res->send();
+        }
+        $res->addResponseData($db->error(), "message");
+        return $res->send(Response::BAD_REQUEST);
+    }
     public function Vairuotojai(Request $req, Response $res){
         $db = new Database();
         $result = $db->query_String('
@@ -649,4 +704,5 @@ class Sistemos_Prieinamumas extends Controller {
         $res->addResponseData($db->error(), "error");
         return $res->send(Response::BAD_REQUEST);
     }
+    #endregion
 }
