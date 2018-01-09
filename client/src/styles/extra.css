@@ -79,11 +79,9 @@ a#ForButtons:hover {
 }
 
 footer {
-    position: absolute;
-    width: calc(100% - 250px);
+    margin-top: 20px;
     height: 40px;
     line-height: 40px;
-    bottom: 0px;
     background: linear-gradient(to right, #192231, #f5f5f5);
     text-align: center;
     color: #192231;

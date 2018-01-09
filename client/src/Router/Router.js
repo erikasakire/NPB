@@ -79,26 +79,28 @@ class Router extends React.Component {
                             </li>
                         </ul>
                     </div>
-                    <div id="main" className="flex">
-                        <Switch>
-                            <Route path="/login" component={Login}/>
-                            <Route path="/logout" component={Logout}/>
-                            
-                            <PrivateRoute exact path="/" component={App}/>
-                            <PrivateRoute exact path="/padaliniai" component={Padaliniai}/>
-                            <PrivateRoute exact path="/produkcija" component={Produkcija}/>
-                            <PrivateRoute exact path="/produkcija/ataskaita" component={Ataskaita}/>
-                            <PrivateRoute path="/darbuotojas/:id" component={Darbuotojas}/>
-                            <PrivateRoute path ="/produkcija/:id" component={Preke}/>
-                            <PrivateRoute path="/padaliniai/:id" component={Padalinys}/>
-                            <PrivateRoute path="/drivers" component={Drivers}/>
-                            <PrivateRoute path="/workers" component={Workers}/>
-                            <PrivateRoute path="/orders" component={Order}/>
-                            <PrivateRoute path="/order" component={Orders}/>
-                            <PrivateRoute path="/vehicle" component={Vehicles}/>
+                    <div id="main" className="flex dflex verticalFlex">
+                        <div className="flex">
+                            <Switch>
+                                <Route path="/login" component={Login}/>
+                                <Route path="/logout" component={Logout}/>
+                                
+                                <PrivateRoute exact path="/" component={App}/>
+                                <PrivateRoute exact path="/padaliniai" component={Padaliniai}/>
+                                <PrivateRoute exact path="/produkcija" component={Produkcija}/>
+                                <PrivateRoute exact path="/produkcija/ataskaita" component={Ataskaita}/>
+                                <PrivateRoute path="/darbuotojas/:id" component={Darbuotojas}/>
+                                <PrivateRoute path ="/produkcija/:id" component={Preke}/>
+                                <PrivateRoute path="/padaliniai/:id" component={Padalinys}/>
+                                <PrivateRoute path="/drivers" component={Drivers}/>
+                                <PrivateRoute path="/workers" component={Workers}/>
+                                <PrivateRoute path="/orders" component={Order}/>
+                                <PrivateRoute path="/order" component={Orders}/>
+                                <PrivateRoute path="/vehicle" component={Vehicles}/>
 
-                        </Switch>
-                        <NotificationContainer/>
+                            </Switch>
+                            <NotificationContainer/>
+                        </div>
                         <footer> NBP grupė, Informatikos fakultetas, Kaunas 2018 </footer>
                     </div>
                 </div>
