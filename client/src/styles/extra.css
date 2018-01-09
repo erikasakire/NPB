@@ -16,7 +16,7 @@ body {
     margin-left: 10%;
     margin-right: 10%;
     background-color: #faf9f8;
-    box-shadow: #192231;
+    box-shadow: inset 5px 1px #192231;
     /*nereikalingas, palieku tik dėl splavos */
 }
 
