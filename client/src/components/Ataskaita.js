@@ -84,7 +84,11 @@ class Ataskaita extends React.Component {
         }
 
         if (this.state.data == null){
-            return <p>Prašome palaukti</p>
+            return (
+                <div class="PleaseWait">
+                    <p>Prašome palaukti</p>
+                </div>
+            );
         }
 
         let judejimas = [];

@@ -18,16 +18,186 @@ class Sistemos_Prieinamumas extends Controller {
 
         $this->get('/darbuotojai', [$this, 'Duomenys_Apie_Darbuotojus']);
         $this->get('/vairuotojai', [$this, 'Vairuotojai']);
+        
+        $this->get('/vartotojas/:username', [$this, "Vartotojas"]);
+        $this->post('/vartotojas/:username', [$this, "Vartotojas"]);
 
         $this->post('/registruoti/darbuotojas', [$this, 'Darbuotoju_Registravimas']);
         $this->post('/registruoti/vairuotojas', [$this, 'Vairuotoju_Registravimas']);
-        $this->post('/atnaujinti', [$this, 'Redaguoti_Darbuotojo_Duomenis']);
+        $this->post('/atnaujinti/asmuo', [$this, 'Redaguoti_Darbuotojo_Duomenis']);
         $this->post('/atnaujinti/ranga', [$this, 'Darbuotojo_Rango_Nustatymas']);
         $this->post('/prisijungti', [$this, 'Darbuotojo_Registracija']);
         
 
         $this->mapToMethod($this);
     }
+
+    public function Vartotojas(Request $req , Response $res){
+        switch($req->getRequestType()){
+            
+            case typesEnumerator::GET: {
+                $result = $this->GetVartotojas($req->params["username"]);
+                if (!$result){
+                    $res->addResponseData("Toks vartotojas neegzistuoja.", "message");
+                    return $res->send(Response::BAD_REQUEST);
+                }
+                $res->addResponseData($result);
+                return $res->send();
+            }
+            case typesEnumerator::POST: {
+                
+                switch($req->body["method_no"]){
+                    case 1: { /** Update person data */
+                        $result = $this->UpdatePersonData($req->body, $req->params["username"]);
+                        if (!$result){
+                            $res->addResponseData("Atnaujinti nepavyko", "message");
+                            return $res->send(Response::BAD_REQUEST);
+                        }
+                        return $res->send();
+                    }
+                    case 2: { /** Update password data */
+                        /** Check old password */
+                        if (!$this->ValidatePassword($req->params['username'], $req->body['oldPassword'])){
+                            return;
+                        }
+                        /** Check if new passwords are identical */
+                        if (!$this->MatchNewPassword($req->body['newPassword'], $req->body['newPassword2'])){
+                            return;
+                        }
+                        /** Change password */
+                        if (!$this->UpdatePassword($req->params["username"], $req->body["newPassword"])){
+                            return;
+                        }
+
+                        $res->addResponseData($this->GenerateAccessKey($req->body["newPassword"]), "accessKey");
+                        return $res->send(Response::OK);
+                    }
+                }
+            }
+        }
+    }
+    private function GetVartotojas($username){
+        $db = new Database();
+        return $db->CallProcedure("getUserData", [$username]); 
+    }
+    private function UpdatePersonData($params, $username){
+        $db = new Database();
+        $result =  $db->query_String("
+            UPDATE `asmuo` 
+            SET 
+                `AsmensKodas` = ::ak,
+                `Vardas` = ::name, 
+                `Pavarde` = ::surname, 
+                `Telefono_nr` = ::phone,
+                `Epastas` = ::email,
+                `Gyvenamoji_vieta` = ::livingIn,
+                `Gimimo_data` = ::date,
+                `Issilavinimas` = ::degree,
+                `Sveikatos_draudimas` = ::insurance 
+            WHERE `asmuo`.`AsmensKodas` = (
+                SELECT `asmensprisijungimas`.`AsmensKodas` 
+                FROM `asmensprisijungimas` 
+                WHERE `asmensprisijungimas`.`Prisijungimo_vardas` = ::username
+            )
+         ", array(
+             "ak" => $params["personId"],
+             "name" => $params["name"],
+             "surname" => $params["surname"],
+             "phone" => $params["phone"],
+             "email" => $params["email"],
+             "livingIn" => $params["livingIn"],
+             "date" => $params["birthDate"],
+             "degree" => $params["degree"],
+             "insurance" => $params["healthInsurance"] ? "1" : "0",
+             "username" => $username,
+         )
+        );
+
+        return !!$result;
+    }
+    private function ValidatePassword($username, $password){
+        $db = new Database();
+        $res = new Response();
+
+        /** @var mysqli_result $result - database query result */
+        $result = $db->query_String("
+            SELECT `registracija`.`Slaptazodis`
+            FROM `registracija`
+            WHERE `registracija`.`Prisijungimo_vardas` = ::username
+            ", array(
+            "username" => $username
+        ));
+
+        if (!$result){
+            $res->addResponseData("Toks vartotojas neegzistuoja.", "message");
+            $res->send(Response::BAD_REQUEST);
+            return false;
+        }
+
+        if ($db->numRows_MysqliResult($result) != 1){
+            $res->addResponseData("Nepavyko rasti vartototjo.", "message");
+            $res->send(Response::BAD_REQUEST);
+            return false;
+        }
+
+        /** @var String $result - password */
+        $storedPassword = $db->array_MysqliResult($result)[0]['Slaptazodis'];
+        do{
+            /** Checks if given pasword hash is same as stored one */
+            if (hash("sha256", $password) == $storedPassword){
+                break;
+            }
+
+            /** TEMP */
+            if ($password == $storedPassword){
+                break;
+            }
+
+            /** If password is not access key and not equals to stored one, return BAD REQUEST header */
+            $res->addResponseData("Vartotojo vardas ir slaptažodis neteisingi.", "message");
+            $res->send(Response::BAD_REQUEST);
+            return false;
+        }while(false);
+
+        return true;
+    }
+    private function MatchNewPassword($ps1, $ps2){
+        $res = new Response();
+
+        if ($ps1 != $ps2){
+            $res->addResponseData("Slaptažodžiai nesutinka", "message");
+            $res->send(Response::BAD_REQUEST);
+            return false;
+        }
+
+        return true;
+    }
+    private function UpdatePassword($username, $password){
+        $db = new Database();
+        $res = new Response();
+
+        $result = $db->query_String("
+            UPDATE `registracija`
+            SET `registracija`.`Slaptazodis` = ::password
+            WHERE `registracija`.`Prisijungimo_vardas` = ::username
+         ", array (
+            "password" => hash("sha256", $password),
+            "username" => $username,
+        ));
+
+        if (!$result){
+            $res->addResponseData("Atnauujinti nepavyko: " . $db->error(), "message");
+            $res->send(Response::BAD_REQUEST);
+            return false;
+        }
+
+        return true;
+    }
+    private function GenerateAccessKey($password){
+        return password_hash(hash("sha256", $password), PASSWORD_BCRYPT);
+    }
+
+
     /**
      * Naujo darbuotojo pridėjimas į sistemą.
      */
@@ -251,6 +421,7 @@ class Sistemos_Prieinamumas extends Controller {
                 `asmuo`.`Gyvenamoji_vieta`,
                 `asmuo`.`Gimimo_data`,
                 `asmuo`.`Issilavinimas`,
+                `asmuo`.`Sveikatos_draudimas`
                 
                 /** informacija apie prisijungimus **/
                 `registracija`.`Prisijungimo_vardas`,
@@ -279,7 +450,8 @@ class Sistemos_Prieinamumas extends Controller {
      * Darbuotojo duomenų redagavimas
      */
     public function Redaguoti_Darbuotojo_Duomenis (Request $req, Response $res){
-        $successful = $db->Transaction(array(
+        $db = new Database();
+        $successful = $db->query_Query(
             Query::generate('
                 UPDATE `asmuo` SET
                     `Vardas`              = ::vardas, 
@@ -302,36 +474,8 @@ class Sistemos_Prieinamumas extends Controller {
                 "gimimodata"            => $req->body['gimimodata'],
                 "issilavinimas"         => $req->body['issilavinimas'],
                 "sveikatosdraudimas"    => $req->body['sveikatosdraudimas'],
-            )),
-            Query::generate('
-                UPDATE `registracija` SET 
-                    `Slaptazodis`            = ::pass
-                    `Prisijungimo_klausimas` = ::question
-                    `Prisijungimo_atsakymas` = ::answer
-                WHERE
-                    `Prisijungimo_vardas`    = ::regist
-             ', array(
-                "regist"    => $req->body['regist'],
-                "pass"      => $req->body['pass'],
-                "question"  => $req->body['question'],
-                "answer"    => $req->body['answer'],
-            )),
-            Query::generate('
-                UPDATE `darbuotojas` SET
-                    `Dirba_nuo`  = ::dirbanuo,
-                    `Alyginimas` = ::atlyginimas,
-                    `Etatas`     = ::etatas,    
-                    `Stazas`     = ::stazas
-                WHERE 
-                    `Tabelio_nr` = ::tabnr,             
-             ', array(
-                "tabnr" => $req->body['tabnr'],
-                "dirbanuo" => $req->body['dirbanuo'],
-                "atlyginimas" => $req->body['atlyginimas'],
-                "etatas" => $req->body['etatas'],
-                "stazas" => $req->body['stazas'],
             ))
-        ));
+        );
     }
     /**
      * Pakeičiamas darbuotojo rangas
@@ -375,67 +519,95 @@ class Sistemos_Prieinamumas extends Controller {
      */
     public function Darbuotojo_Registracija (Request $req, Response $res){
         $db = new Database();
-        $result = $db->query_String('
-            SELECT 
-                /** Asmens informacija **/
-                da.`Vardas` AS DVardas,
-                da.`Pavarde` AS DPavarde,
-                    
-                /** Asmens informacija **/
-                va.`Vardas` AS VVaradas,
-                va.`Pavarde` AS VPavarde,
-                
-                /** Teisiu informacija**/
-                `rangas`.`rangai`,
-                `rangas`.`id`
-                
+
+        /** @var mysqli_result $result - database query result */
+        $result = $db->query_String("
+            SELECT `registracija`.`Slaptazodis`
             FROM `registracija`
-            LEFT JOIN `darbuotojas` ON 	`darbuotojas`.`Registracija_Prisijungimo_vardas` = `registracija`.`Prisijungimo_vardas`
-            LEFT JOIN `asmuo` AS da ON 	`darbuotojas`.`Asmuo_AsmensKodas` = da.`AsmensKodas`
-            LEFT JOIN `rangas` ON  `rangas`.`id` = `darbuotojas`.`Rangas_id`
+            WHERE `registracija`.`Prisijungimo_vardas` = ::username
+         ", array(
+            "username" => $req->body['username']
+         ));
 
-            LEFT JOIN `vairuotojas` ON `vairuotojas`.`Registracija_Prisijungimo_vardas` = `registracija`.`Prisijungimo_vardas`
-            LEFT JOIN `asmuo` AS va ON `vairuotojas`.`Asmuo_AsmensKodas` = va.`AsmensKodas`
-            
-            WHERE `registracija`.`Prisijungimo_vardas` = ::username 
-                AND `registracija`.`Slaptazodis` = ::password
-         ', array(
-            "username" => $req->body['username'],
-            "password" => $req->body['password']
-        ));
-        if ($result){
-            /** @var mysqli_result $result*/
-            if ($result->num_rows == 0){
-                return $res->send(Response::BAD_REQUEST);
-            }
-
-            $result = $db->array_MysqliResult($result)[0];
-            if ($result['DVardas'] != null and $result['DPavarde'] != null){
-                $res->addResponseData(array(
-                    "Vardas" => $result['DVardas'],
-                    "Pavarde" => $result['DPavarde'],
-                    "Pareigos" => $result['rangai'],
-                    "PareiguKodas" => $result['id']
-                ), "data");
-            }
-            elseif($result['VVaradas'] != null and $result['VPavarde'] != null){
-                $res->addResponseData(array(
-                    "Vardas" => $result['VVaradas'],
-                    "Pavarde" => $result['VPavarde'],
-                    "Pareigos" => "Vairuotojas",
-                    "PareiguKodas" => -1
-                ), "data");
-            }
-            else {
-                return $res->send(Response::BAD_REQUEST);
-            }
-
-            $res->addResponseData(password_hash(hash("sha256", $req->body['password']), PASSWORD_BCRYPT), "accessKey");
-            return $res->send(Response::OK);
-        } 
-        else{
+        if (!$result){
+            $res->addResponseData("Toks vartotojas neegzistuoja.", "message");
             return $res->send(Response::BAD_REQUEST);
         }
+
+        if ($db->numRows_MysqliResult($result) != 1){
+            $res->addResponseData("Nepavyko rasti vartototjo.", "message");
+            return $res->send(Response::BAD_REQUEST);
+        }
+
+        /** @var String $result - password */
+        $storedPassword = $db->array_MysqliResult($result)[0]['Slaptazodis'];
+        $givenPassword = $req->body['password'];
+
+        do{
+            /** Checks if password is access key from cookie */
+            if (password_verify($storedPassword, $givenPassword)){
+                break;
+            }
+            /** TEMP */
+            if (password_verify(hash("sha256", $storedPassword), $givenPassword)){
+                break;
+            }
+
+            /** Checks if give pasword is same as stored one */
+            if (hash("sha256", $givenPassword) == $storedPassword){
+                break;
+            }
+
+            /** TEMP */
+            if ($givenPassword == $storedPassword){
+                break;
+            }
+
+            /** If password is not access key and not equals to stored one, return BAD REQUEST header */
+            $res->addResponseData("Vartotojo vardas ir slaptažodis neteisingi.", "message");
+            return $res->send(Response::BAD_REQUEST);
+        }while(false);
+
+        /** If script reaches this place, it means user is verified. */
+        $result = array_merge(
+            $db->array_String("
+                    SELECT 
+                        `asmuo`.`Vardas`,
+                        `asmuo`.`Pavarde`,
+                        `rangas`.`rangai`,
+                        `rangas`.`id`
+                    FROM `registracija`
+                    LEFT JOIN `darbuotojas` ON 	`darbuotojas`.`Registracija_Prisijungimo_vardas` = `registracija`.`Prisijungimo_vardas`
+                    LEFT JOIN `asmuo` ON 	`darbuotojas`.`Asmuo_AsmensKodas` = `AsmensKodas`
+                    LEFT JOIN `rangas` ON  `rangas`.`id` = `darbuotojas`.`Rangas_id`
+                    WHERE `registracija`.`Prisijungimo_vardas` = ::username
+                ", array(
+                    "username" => $req->body['username']
+                )
+            ),
+            $db->array_String("
+                    SELECT 
+                        `asmuo`.`Vardas`,
+                        `asmuo`.`Pavarde`,
+                        'Vairuotojas' AS `rangai`,
+                        '-1' AS `id`
+                    FROM `registracija`
+                    LEFT JOIN `vairuotojas` ON `vairuotojas`.`Registracija_Prisijungimo_vardas` = `registracija`.`Prisijungimo_vardas`
+                    LEFT JOIN `asmuo` ON `vairuotojas`.`Asmuo_AsmensKodas` = `AsmensKodas`
+                    WHERE `registracija`.`Prisijungimo_vardas` = ::username;
+                ", array(
+                    "username" => $req->body['username']
+                )
+            )
+        );
+        $result = $result[0]['Vardas'] == null ? $result[1] : $result[0];
+
+        $res->addResponseData($result['Vardas'], "Vardas")
+            ->addResponseData($result['Pavarde'], "Pavarde")
+            ->addResponseData($result['rangai'], "Pareigos")
+            ->addResponseData($result['id'], "PareiguKodas")
+            ->addResponseData(password_hash(hash("sha256", $givenPassword), PASSWORD_BCRYPT), "accessKey")
+            ->send(Response::OK);
     }
 
     public function Vairuotojai(Request $req, Response $res){

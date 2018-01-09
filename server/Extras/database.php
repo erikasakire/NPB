@@ -128,6 +128,31 @@ class Database {
     }
 
 
+    public function CallProcedure(String $procedureName, array $params = []){
+        $sql = "Call $procedureName(";
+        for($i = 0; $i < count($params); $i++){
+            if ($i != 0){
+                $sql .= ", ";
+            }
+            $sql .= '"' . $this->dbc->real_escape_string($params[$i]) . '"';
+        }
+        $sql .= ")";
+         
+        if(!$this->dbc->multi_query($sql)){
+            return false;
+        }
+        $rData = array();
+
+        do {
+            if ($res = $this->dbc->store_result()){
+                array_push($rData, $this->array_MysqliResult($res));
+                $res->free();
+            }
+        } while($this->dbc->more_results() and $this->dbc->next_result());
+
+        return $rData;
+    }
+
     /**
      * Returns last error message from mysqli class object.
      * @return string Last  error message.
