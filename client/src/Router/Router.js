@@ -2,6 +2,7 @@
 import React from 'react';
 import { BrowserRouter as WebRouter, Route, Link, Redirect, Switch } from 'react-router-dom';
 import { Nav, NavItem } from 'react-bootstrap';
+import {NotificationContainer} from 'react-notifications';
 
 /** Notifications */
 import { NotificationContainer } from 'react-notifications';
@@ -75,27 +76,31 @@ class Router extends React.Component {
                             
                         </nav>
                     </div>
-                    <div id="main" className="flex">
-                        <Switch>
-                            <Route exact path="/login"    component={Login}   />
-                            <Route exact path="/logout"   component={Logout}  />
-                            
-                            <PrivateRoute exact path="/"                        component={App}         fallback="/login" />
-                            <PrivateRoute exact path="/padaliniai"              component={Padaliniai}      />
-                            <PrivateRoute exact path="/produkcija"              component={Produkcija}      />
-                            <PrivateRoute exact path="/produkcija/ataskaita"    component={Ataskaita}       />
-                            <PrivateRoute       path="/darbuotojas/:id"         component={Darbuotojas}     />
-                            <PrivateRoute       path="/produkcija/:id"          component={Preke}           />
-                            <PrivateRoute       path="/padaliniai/:id"          component={Padalinys}       />
-                            <PrivateRoute       path="/drivers"                 component={Drivers}     userRights={[moderator, administrator]}    />
-                            <PrivateRoute       path="/workers"                 component={Workers}     userRights={[moderator, administrator]}    />
-                            <PrivateRoute       path="/orders"                  component={Order}           />
-                            <PrivateRoute       path="/order"                   component={Orders}          />
-                            <PrivateRoute       path="/vehicle"                 component={Vehicles}        />
-                            <PrivateRoute       path="/settings"                component={Settings}                />
-                        </Switch>
+
+                    <div id="main" className="flex dflex verticalFlex">
+                        <div className="flex">
+                            <Switch>
+                                <Route exact path="/login"    component={Login}   />
+                                <Route exact path="/logout"   component={Logout}  />
+
+                                <PrivateRoute exact path="/"                        component={App}         fallback="/login" />
+                                <PrivateRoute exact path="/padaliniai"              component={Padaliniai}      />
+                                <PrivateRoute exact path="/produkcija"              component={Produkcija}      />
+                                <PrivateRoute exact path="/produkcija/ataskaita"    component={Ataskaita}       />
+                                <PrivateRoute       path="/darbuotojas/:id"         component={Darbuotojas}     />
+                                <PrivateRoute       path="/produkcija/:id"          component={Preke}           />
+                                <PrivateRoute       path="/padaliniai/:id"          component={Padalinys}       />
+                                <PrivateRoute       path="/drivers"                 component={Drivers}     userRights={[moderator, administrator]}    />
+                                <PrivateRoute       path="/workers"                 component={Workers}     userRights={[moderator, administrator]}    />
+                                <PrivateRoute       path="/orders"                  component={Order}           />
+                                <PrivateRoute       path="/order"                   component={Orders}          />
+                                <PrivateRoute       path="/vehicle"                 component={Vehicles}        />
+                                <PrivateRoute       path="/settings"                component={Settings}                />
+                            </Switch>
+                            <NotificationContainer/>
+                        </div>
+                        <footer> NBP grupė, Informatikos fakultetas, Kaunas 2018 </footer>
                     </div>
-                    <NotificationContainer/>
                 </div>
             </WebRouter>
         )

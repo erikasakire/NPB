@@ -33,6 +33,7 @@ class PrivateRoute extends React.Component{
         this.debug = false;
     }
     render(){
+
         if (this.debug){ console.log(this.props); }
 
         /** Redirection page if user is not valid to use this page */
