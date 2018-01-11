@@ -9,15 +9,15 @@ class Uzsakymu_valdiklis extends Controller {
         $this->get('/sarasas', [$this, 'gauti_sarasa']);
         $this->post('/atsaukti', [$this, 'atsaukti_uzsakyma']);
         $this->post('/keisti_pr', [$this, 'keisti_prioriteta']);
-        $this->post('/redaguoti', [$this, 'atnaujinti_TP_duom']);
-        $this->post('/prideti', [$this, 'issaugoti_nauja_TP']);
+        $this->post('/redaguoti', [$this, 'atnaujinti']);
+        $this->post('/prideti', [$this, 'naujas_uzsakymas']);
 
         $this->mapToMethod($this);
     }
 
     public function gauti_sarasa(Request $req, Response $res) {
         $db = new Database();
-        $result = $db->array_String('
+        $result = $db->array_String("
         SELECT 
 
             /** Informacija apie užsakymą **/
@@ -48,9 +48,8 @@ class Uzsakymu_valdiklis extends Controller {
 
             `a1`.`Vardas` AS sudare_vardas,
             `a1`.`Pavarde` AS sudare_pavarde,
-            `vairuotojas`.`Tabelio_nr` AS vair_tab_nr,
-            `a2`.`Vardas` AS vair_vardas,
-            `a2`.`Pavarde` AS vair_pavarde
+            `vairuotojas`.`Tabelio_nr` AS `Driver_id`,
+            CONCAT (`a2`.`Vardas`, ' ', `a2`.`Pavarde`) AS `Driver`              
         FROM `uzsakymas`
             INNER JOIN `darbuotojas` ON `uzsakymas`.`Suformavo` = `darbuotojas`.`Tabelio_nr`
             INNER JOIN `asmuo` a1 ON `darbuotojas`.`Asmuo_AsmensKodas` = `a1`.`AsmensKodas`
@@ -59,7 +58,8 @@ class Uzsakymu_valdiklis extends Controller {
             INNER JOIN `padalinys` pIs ON `uzsakymas`.`IsPadalinio` = `pIs`.`Inventorinis_numeris`
             INNER JOIN `padalinys` pI ON `uzsakymas`.`IPadalini`= `pI`.`Inventorinis_numeris`
             INNER JOIN `busena` ON `uzsakymas`.`Busena`= `busena`.`Busenos_id`
-        ', array());
+        ORDER BY `uzsakymas`.`Uzsakymo_data` DESC
+        ", array());
 
         $allWorkers = $db->array_String("
         SELECT
@@ -70,17 +70,37 @@ class Uzsakymu_valdiklis extends Controller {
         FROM `darbuotojas` 
         INNER JOIN `asmuo` ON `asmuo`.`AsmensKodas` = `darbuotojas`.`Asmuo_AsmensKodas`
         ");
+
+        $allDrivers = $db->array_String("
+        SELECT
+            `vairuotojas`.`Tabelio_nr`,
+            CONCAT (`asmuo`.`Vardas`, ' ', `asmuo`.`Pavarde`) AS vardas
+        FROM `vairuotojas` 
+        INNER JOIN `asmuo` ON `asmuo`.`AsmensKodas` = `vairuotojas`.`Asmuo_AsmensKodas`
+        ");
         
         $allStates = $db->array_String("
         SELECT * FROM `busena`
         ");
 
         $allSubdivisions = $db->array_String("
-        SELECT * FROM `padalinys`
+        SELECT 
+            Inventorinis_numeris AS id,
+            CONCAT(padalinio_pavadinimas, '. ', Salis, ', ', Rajonas, ', ', Miestas, ', ', Gatve)  AS pavad
+        FROM `padalinys`
+        ");
+
+        $allVehicles = $db->array_String("
+        SELECT 
+            `Valstybinis_nr` AS TransportoPriemone,
+            CONCAT (`Marke`, ' ', `Modelis`, ' ', `Valstybinis_nr`) AS aprasas
+        FROM `transporto_priemone`
         ");
 
         $res->addResponseData($result, "data");
         $res->addResponseData($allWorkers, "allWorkers");
+        $res->addResponseData($allDrivers, "allDrivers");
+        $res->addResponseData($allVehicles, "allVehicles");
         $res->addResponseData($allStates, "allStates");
         $res->addResponseData($allSubdivisions, "allSubdivisions");
         
@@ -105,7 +125,6 @@ class Uzsakymu_valdiklis extends Controller {
         }
     }
 
-    //26 paveikslėlis 18
     public function keisti_prioriteta(Request $req, Response $res){
         $db = new Database();
         $result = $db->query_String('
@@ -124,39 +143,35 @@ class Uzsakymu_valdiklis extends Controller {
             $res->send(Response::BAD_REQUEST);
         }
     }
-    //auto indentifikavimo nr
-    //variklio nr
 
     public function naujas_uzsakymas(Request $req, Response $res){
         $db = new Database();
         $result = $db->query_String('
         INSERT INTO `uzsakymas` (
-            `Numeris`,
             `Uzsakymo_data`,
-            `Prioritetas,
+            `Prioritetas`,
             `Busena`,
             `Suformavo`,
             `Vairuotojas`,
             `TransportoPriemone`,
-            `IsPadalinio,
+            `IsPadalinio`,
             `IPadalini`
             )
         VALUES (
-            ::nr, ::uzsakymo_data, ::prior,
+            now(), ::prior,
             ::busena, ::formuotojas, 
             ::vairuotojas, ::tran_priemone,
             ::is_padalinys, ::at_padalinys          
             )
          ', array(
-            "nr" => $req->body['nr'],
-            "uzsakymo_data" => $req->body['uzsakymo_data'],
-            "prior" => $req->body['prioritetas'],
-            "busena" => $req->body['busena'], // tiesiog įvesti 1
-            "formuotojas" => $req->body['formuotojas'],
-            "vairuotojas" => $req->body['vairuotojas'],
-            "tran_priemone" => $req->body['TP_valst_nr'],
-            "is_padalinys" => $req->body['is_padalinys'],
-            "at_padalinys" => $req->body['at_padalinys']
+            "uzsakymo_data" => $req->body['uz_data'],
+            "prior" => $req->body['prior'],
+            "busena" => $req->body['busenos_id'], // tiesiog įvesti 1
+            "formuotojas" => $req->body['formuotojo_id'],
+            "vairuotojas" => $req->body['vair_id'],
+            "tran_priemone" => $req->body['tp_id'],
+            "is_padalinys" => $req->body['is_pad_id'],
+            "at_padalinys" => $req->body['i_pad_id']
         ));
 
         if($result){
@@ -172,30 +187,26 @@ class Uzsakymu_valdiklis extends Controller {
         $result = $db->query_String('
         UPDATE `uzsakymas`
             SET
-            `Numeris`,
-            `Uzsakymo_data`,
-            `Prioritetas,
-            `Busena`,
-            `Suformavo`,
-            `Vairuotojas`,
-            `TransportoPriemone`,
-            `IsPadalinio,
-            `IPadalini`
+            `Atlikimo_data` = ::at_data,
+            `Prioritetas` = ::prior,
+            `Busena` = ::busena,
+            `Suformavo` = ::formuotojas, 
+            `Vairuotojas` = ::vairuotojas,
+            `TransportoPriemone` = ::tran_priemone,
+            `IsPadalinio` = ::is_padalinys,
+            `IPadalini` = ::at_padalinys
         WHERE
-            ::nr, ::uzsakymo_data, ::prior,
-            ::busena, ::formuotojas, 
-            ::vairuotojas, ::tran_priemone,
-            ::is_padalinys, ::at_padalinys         
+            `Numeris` = ::nr        
          ', array(
-            "nr" => $req->body['nr'],
-            "uzsakymo_data" => $req->body['uzsakymo_data'],
-            "prior" => $req->body['prioritetas'],
-            "busena" => $req->body['busena'],
-            "formuotojas" => $req->body['formuotojas'],
-            "vairuotojas" => $req->body['vairuotojas'],
-            "tran_priemone" => $req->body['TP_valst_nr'],
-            "is_padalinys" => $req->body['is_padalinys'],
-            "at_padalinys" => $req->body['at_padalinys']
+            "nr" => $req->body['id'],
+            "at_data" => $req->body['at_data'],
+            "prior" => $req->body['prior'],
+            "busena" => $req->body['busenos_id'],
+            "formuotojas" => $req->body['formuotojo_id'],
+            "vairuotojas" => $req->body['vair_id'],
+            "tran_priemone" => $req->body['tp_id'],
+            "is_padalinys" => $req->body['is_pad_id'],
+            "at_padalinys" => $req->body['i_pad_id']
         ));
 
         if($result){
