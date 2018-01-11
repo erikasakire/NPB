@@ -635,6 +635,13 @@ class  Vechiles extends React.Component {
     }
 
     render() {
+
+        if (this.state.data.cars.length == 0 ){
+            return (
+                <div class="pre-loader"></div>
+            );
+        }
+
         this.state.select_categories=[<option value="" key={-1}>Visos vairavimo kategorijos</option>];
         this.state.select_states=[<option value="" key={-1}>Visos būsenos</option>];
 
@@ -705,14 +712,13 @@ class  Vechiles extends React.Component {
                     color: "#985E6D",
                     paddingBottom: "50px"
                 }}>Transporto priemonės</h2>
-                <div className="">
-                    <div className="">
-                        <table id="">
+               
+                        <table style={{ width: "100%"}}>
                             <thead>
                                 <tr>
                                     <th>
                                         Marke
-                                    </th>
+                                   </th>
                                     <th>
                                         Modelis
                                     </th>
@@ -740,9 +746,6 @@ class  Vechiles extends React.Component {
                                 {carsRows}
                             </tbody>
                         </table>
-
-                    </div>
-                </div>
 
                 {this.Modal()}
 

@@ -456,6 +456,11 @@ class Drivers extends React.Component{
 
 
     render(){
+        if (this.state.data.empty){
+            return (
+                <div class="pre-loader"></div>
+            );
+        }
         /** Drivers table */
         let rows = null;
         if(this.state.data.empty){

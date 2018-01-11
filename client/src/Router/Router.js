@@ -77,7 +77,7 @@ class Router extends React.Component {
                     </div>
 
                     <div id="main" className="flex dflex verticalFlex">
-                        <div className="flex">
+                        <div className="flex relative dflex">
                             <Switch>
                                 <Route exact path="/login"    component={Login}   />
                                 <Route exact path="/logout"   component={Logout}  />

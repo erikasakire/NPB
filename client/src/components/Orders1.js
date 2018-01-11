@@ -579,6 +579,11 @@ class  Orders extends React.Component {
     }
 
     render() {
+        if (this.state.data.data.length == 0){
+            return (
+                <div class="pre-loader"></div>
+            );
+        }
         /*this.state.select_categories=[<option value="" key={-1}>Visos vairavimo kategorijos</option>];
         this.state.select_states=[<option value="" key={-1}>Visos būsenos</option>];*/
 /*
@@ -649,8 +654,6 @@ class  Orders extends React.Component {
         }
 
         return (
-            <div className="">
-                <div className="">
                     <div id="wraper">
                     <h2 style={{
                         textAlign: "center",
@@ -693,9 +696,6 @@ class  Orders extends React.Component {
                                 {ordersRows}
                             </tbody>
                         </table>
-
-                    </div>
-                </div>
 
                 {this.Modal()}
 

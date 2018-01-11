@@ -204,6 +204,11 @@ export default class Orders extends React.Component {
         });
     }
     render(){
+        if (this.state.data.empty){
+            return (
+                <div class="pre-loader"></div>
+            );
+        }
         let rows = null;
         if(this.state.data.empty){
             if(this.state.data.fetched){
@@ -330,9 +335,14 @@ export default class Orders extends React.Component {
         }
              
         return(
-            <div>
-                <h2 className="title">Užsakymų duomenys</h2>
-                <table id="table">
+            <div id="wraper">
+            <h2 style={{
+                    textAlign: "center",
+                    color: "#985E6D",
+                    paddingBottom: "50px"
+                }}>Užsakymų duomenys</h2>
+        
+                <table id="table" style={{ width: "100%"}}>
                     <tbody>
                         <tr>
                             <th>Numeris</th>

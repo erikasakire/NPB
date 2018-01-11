@@ -22,7 +22,7 @@ class Preke extends React.Component {
         this.fetchData();
     }
     fetchData (){
-        fetch(config.server + '/produkcija/Produktas/' + this.props.computedMatch.params.id, {
+        fetch(config.server + '/produkcija/Produktas/' + this.props.match.params.id, {
             method: "GET"
         })
         .then(response => response.json())
@@ -32,7 +32,14 @@ class Preke extends React.Component {
         })
     }
 
-    render(){let eilutes = [];
+    render(){
+        if (this.state.data.data.length == 0 ){
+            return (
+                <div class="pre-loader"></div>
+            );
+        }
+
+        let eilutes = [];
         let padaliniai = [];
         let padalKiekis = [];
         let e = '';

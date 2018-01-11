@@ -173,9 +173,7 @@ class PrivateRoute extends React.Component{
                         if (this.debug){ console.log("Still Logging"); }
                         return <Route render={() => {
                             return (
-                                <div className="PleaseWait">
-                                    <p>Prašome palaukti</p>
-                                </div>
+                                <div class="pre-loader"></div>
                             );
                         }}/>;
                     }

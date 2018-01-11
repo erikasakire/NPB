@@ -147,5 +147,51 @@ footer {
     }
 }
 
+.pre-loader {
+    position: fixed;
+    font-size: 30px;
+    margin: auto;
+    /* 1em */
+    width: 1em;
+    height: 1em;
+    position: relative;
+    /* style */
+    border-radius: 50%;
+    background: #123456;
+    transform-origin: 100% 250%;
+    animation: counter-clock 4s linear infinite, clock 1.5s linear infinite;
+    /* Rotation */
+    /* Dots, clockwise */
+    box-shadow: 1em 1em #123456, 2em 2em #123456, 1em 3em #123456, 0em 4em #123456, -1em 3em #123456, -2em 2em #123456, -1em 1em #123456;
+}
+
+.pre-loader:after {
+    /* Size and position */
+    content: "";
+    width: 4em;
+    height: 4em;
+    position: absolute;
+    left: -1.5em;
+    top: 0.5em;
+    border-radius: 50%;
+    /* Styles */
+    transform: rotate(45deg);
+    background: white;
+    /* Fallback */
+    background: rgba(255, 255, 255, 0.6);
+}
+
+@keyframes counter-clock {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes clock {
+    to {
+        filter: hue-rotate(360deg);
+    }
+}
+
 
 /*Elonos css end */
