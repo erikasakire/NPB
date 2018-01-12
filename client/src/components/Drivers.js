@@ -3,6 +3,8 @@ import { connect } from 'react-redux';
 import { Modal, ModalBody, ModalHeader, ModalTitle, FormGroup, FormControl, ControlLabel , ModalFooter, Button, PageHeader} from 'react-bootstrap';
 import { Redirect } from "react-router-dom";
 import config from '../config.json';
+import moment from 'moment';
+import { NotificationManager } from "react-notifications";
 
 class Drivers extends React.Component{
     constructor(props){
@@ -118,6 +120,12 @@ class Drivers extends React.Component{
                         }
                     })
                 }
+            },
+
+            modal_newWorker: {
+                show: false,
+                modalPage: 1,
+                drivingCategories: []
             }
         };
 
@@ -139,6 +147,257 @@ class Drivers extends React.Component{
         this.fetchFreeTP = this.fetchFreeTP.bind(this);
         this.closeTP = this.closeTP.bind(this);
         this.handleTPSubmit = this.handleTPSubmit.bind(this);
+        this.getDateFromPersonID = (id) => {
+            if (id.length != 11){
+                return null;
+            }
+
+            let date = "";
+
+            switch(id.substring(0, 1)){
+                case "3":
+                case "4":
+                    date += "19";
+                    break;
+                case "5":
+                case "6":
+                    date += "20";
+                    break;
+            }
+            date += id.substring(1, 3);
+            date += '-';
+            date += id.substring(3, 5);
+            date += "-";
+            date += id.substring(5, 7);
+
+            return date;
+        }
+        /** New worker package */
+        this.newWorkerPackage = {
+            /** Form fields */
+            formPerson: "formPerson",
+            formFields: {
+                personId: "personId",
+                name: "name",                            
+                surname: "surname",
+                phone: "phone",
+                email: "email",
+                birthDate: "birthDate",
+                healthInsurance: "healthInsurance",
+                livingIn: "livingIn",
+                degree: "degree",
+                
+            },
+
+            formWorker: "formWorker",
+            formworkerFields: {
+                licenceValiFrom: "lvfrom",
+                licenceValidTo: "lvto",
+                drivingCategories: "dctgr",
+            },
+
+            function_formFields: (FieldGroup, FieldLabel, FieldControl) => {
+                if (FieldGroup == undefined){
+                    return false;
+                }
+                if (FieldLabel == undefined){
+                    return false;
+                }
+                if (FieldControl == undefined){
+                    return false;
+                }
+
+                let fields = [];
+                let values = Object.values(this.newWorkerPackage.formFields);
+                for(let i = 0; i < values.length; i++){
+                    let label = values[i].label;
+
+                    if (values[i].render == undefined){
+                        let child = values[i].child;                
+                        let props = Object.assign({}, values[i]);
+                        delete props.label;
+                        delete props.labelClass;
+                        delete props.containerClass;
+
+                        fields.push(
+                            <FieldGroup className={values[i].containerClass} key={i}>
+                                <FieldLabel className={values[i].labelClass}>{label}</FieldLabel>
+                                <FieldControl {...props}/>
+                            </FieldGroup>
+                        );
+                    }
+                    else {
+                        fields.push(
+                            <FieldGroup className={values[i].containerClass} key={i}>
+                                <FieldLabel className={values[i].labelClass}>{label}</FieldLabel>
+                                {values[i].render()}
+                            </FieldGroup>
+                        );
+                    }
+                }
+
+                return fields;
+            },
+            function_collectData: () => {
+                let data = {};
+                let keys = Object.keys(this.newWorkerPackage.formFields);
+                for(let i = 0; i < keys.length; i++){
+                    let element =  document.getElementById(this.newWorkerPackage.formFields[keys[i]]); 
+                    switch(element.type){
+                        case "checkbox":
+                            data[keys[i]] = element.checked;
+                            break;
+                        case "select-multiple":
+                            data[keys[i]] = [];
+                            for(let j = 0; j < element.options.length; j++){
+                                if (element.options[j].selected){
+                                    data[keys[i]].push(element.options[j].value);
+                                }
+                            }
+                            break;
+                        default:
+                            data[keys[i]] = element.value;
+                    }
+                }
+                keys = Object.keys(this.newWorkerPackage.formworkerFields);
+                for(let i = 0; i < keys.length; i++){
+                    let element =  document.getElementById(this.newWorkerPackage.formworkerFields[keys[i]]); 
+                    switch(element.type){
+                        case "checkbox":
+                            data[keys[i]] = element.checked;
+                            break;
+                        case "select-multiple":
+                            data[keys[i]] = [];
+                            for(let j = 0; j < element.options.length; j++){
+                                if (element.options[j].selected){
+                                    data[keys[i]].push(element.options[j].value);
+                                }
+                            }
+                            break;
+                        default:
+                            data[keys[i]] = element.value;
+                    }
+                }
+
+                return data;
+            },
+
+            handler_onShow: (e) => {
+                this.setState({
+                    modal_newWorker: Object.assign(
+                        {},
+                        this.state.modal_newWorker,
+                        {
+                            show: true
+                        }
+                    )
+                });
+                this.newWorkerPackage.fetch_posibleRights();
+            },
+            handler_onHide: (e) => {
+                this.setState({
+                    modal_newWorker: Object.assign(
+                        {},
+                        this.state.modal_newWorker,
+                        {
+                            show: false,
+                            rights: undefined
+                        }
+                    )
+                });
+            },
+            handler_onSubmit_person: (e) => {
+                e.preventDefault();
+
+                this.newWorkerPackage.handler_nextPage();
+            },
+            handler_nextPage: (e) => {
+                this.setState({
+                    modal_newWorker: Object.assign(
+                        {},
+                        this.state.modal_newWorker,
+                        {
+                            modalPage: 2
+                        }
+                    )
+                });
+            },
+            handler_previousPage: (e) => {
+                this.setState({
+                    modal_newWorker: Object.assign(
+                        {},
+                        this.state.modal_newWorker,
+                        {
+                            modalPage: 1
+                        }
+                    )
+                });
+            },
+            handler_onSubmit_worker: (e) => {
+                e.preventDefault();
+                let data = this.newWorkerPackage.function_collectData();
+                console.log(data);
+
+                fetch(config.server + '/sistemosprieinamumas/registruoti/vairuotojas', {
+                    method: "POST",
+                    headers: {
+                        "Accept": "application/json",
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(data)
+                })
+                .then(response => {
+                    switch(response.status){
+                        case 200:
+                            NotificationManager.success("Darbuotojas sėkmigai pridėtas.", "Operacija sėkmingai atlikta");
+                            this.newWorkerPackage.handler_onHide();
+                            this.fetchData();
+                            break;
+                        case 400:
+                            response.json().then(response => {
+                                NotificationManager.error("Darbuotojo pridėti nepavyko. " + response.message, "Operacijos klaida");
+                            });
+                            break;
+                    }
+                })
+
+            },
+
+            fetch_posibleRights: (e) => {
+                fetch(config.server + '/sistemosprieinamumas/registruoti/kategorijos', {
+                    method: "GET"
+                }).
+                then(response => {
+                    switch(response.status){
+                        case 200:
+                            response.json().then(response => {
+                                this.setState({
+                                    modal_newWorker: Object.assign(
+                                        {},
+                                        this.state.modal_newWorker,
+                                        {
+                                            drivingCategories: response.categories
+                                        }
+                                    )
+                                });
+                            });
+                            break;
+                        case 204:
+                        case 400:
+                            this.setState({
+                                modal_newWorker: Object.assign(
+                                    {},
+                                    this.state.modal_newWorker,
+                                    {
+                                        drivingCategories: false
+                                    }
+                                )
+                            });
+                    }
+                });
+            },
+            
+        }
     }
 
     componentDidMount(){
@@ -532,7 +791,7 @@ class Drivers extends React.Component{
                     </div>
                     <div className="labelValue">
                         <label>Gyvenamoji vieta:</label>
-                        <p>{this.state.modal.data.Gyvenamoji_vieta}</p>
+                        <p>{this.state.modal.data.Gyvenamoji_vieta || "-"}</p>
                     </div>
                     <div className="labelValue">
                         <label>Gimimo data:</label>
@@ -761,6 +1020,210 @@ class Drivers extends React.Component{
             </Modal>
         }
 
+        let form_createWorker = (
+            <Modal show={this.state.modal_newWorker.show} onHide={this.newWorkerPackage.handler_onHide}>
+                <form onSubmit={this.newWorkerPackage.handler_onSubmit_person} id={this.newWorkerPackage.formPerson} style={{display: this.state.modal_newWorker.modalPage == 1 ? "block" : "none"}}>
+                    <Modal.Header closeButton>
+                        <Modal.Title>
+                            Naujo vairuotojo sukūrimas
+                        </Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <FormGroup controlId="personId">
+                            <ControlLabel>Asmens kodas:</ControlLabel>
+                            <FormControl
+                                type="text"
+                                required
+                                maxLength="11"
+                                minLength="11"
+                                pattern="[3-6]([0-9]{2})(((0[13578]|1[02])(0[1-9]|[12][0-9]|3[01]))|(0[469]|11)(0[1-9]|[12][0-9]|30)|(02(0[0-9]|[12][0-9])))([0-9]{4})"
+
+                                onChange={(e) => {
+                                    /** Auto date generator */
+                                    let date = this.getDateFromPersonID(e.target.value);
+                                    console.log(date);
+                                    if (date != null){
+                                        let dob = document.getElementById(this.newWorkerPackage.formFields.birthDate);
+                                        dob.value = moment(date, "YYYY-MM-DD").format("MM / DD / YYYY");
+                                    }
+                                }}
+                                onInvalid={(e) => {
+                                    if (e.target.validity.patternMismatch) {
+                                        return e.target.setCustomValidity("Prašome įvesti asmens kodą tinkamu formatu.");
+                                    }
+                                    else if (e.target.validity.tooShort) {
+                                        return e.target.setCustomValidity("Asmens kodas turi susidaryti iš 11 simbolių (įvesta " + e.target.value.length + " simboliai).");
+                                    }
+                                    else if (e.target.validity.valueMissing) {
+                                        return e.target.setCustomValidity("Prašome įveti reišmę");
+                                    }
+                                    
+                                    return e.preventDefault();
+                                }}
+                            />
+                        </FormGroup>
+
+                        <FormGroup controlId="name">
+                            <ControlLabel>Vardas:</ControlLabel>
+                            <FormControl
+                                type="text"
+                                maxLength="45"
+                                required
+
+                                onInvalid={(e) => {
+                                    if (e.target.validity.valueMissing){
+                                        return e.target.setCustomValidity("Prašome įvesti vardą");
+                                    }
+
+                                    return e.preventDefault();
+                                }}
+                            />
+                        </FormGroup>
+                        
+                        <FormGroup controlId="surname">
+                            <ControlLabel>Pavardė:</ControlLabel>
+                            <FormControl
+                                type="text"
+                                maxLength="50"
+                                required
+
+                                onInvalid={(e) => {
+                                    if (e.target.validity.valueMissing){
+                                        return e.target.setCustomValidity("Prašome įvesti pavardę");
+                                    }
+
+                                    return e.preventDefault();
+                                }}
+                            />
+                        </FormGroup>
+
+                        <FormGroup controlId="phone">
+                            <ControlLabel>Telefono numeris:</ControlLabel>
+                            <FormControl
+                                type="text"
+                                maxLength="12"
+                                required
+                                pattern="(\+370|8)([0-9]){8}"
+    
+                                onInvalid={(e) => {
+                                    if (e.target.validity.valueMissing){
+                                        return e.target.setCustomValidity("Prašome įveti telefono numerį.");
+                                    }
+                                    else if (e.target.validity.patternMismatch){
+                                        return e.target.setCustomValidity("Prašome įveti telefono numerį tinkamu formatu.");
+                                    }
+                                    return e.preventDefault();
+                                }}
+                            />
+                        </FormGroup>
+                        
+                        <FormGroup controlId="email">
+                            <ControlLabel>Elektroninis paštas:</ControlLabel>
+                            <FormControl
+                                type="email"
+                                required
+                                maxLength="50"
+                                pattern="([a-zA-Z0-9_\.]+)@([[a-zA-Z0-9]+)\.([[a-zA-Z0-9]+)"
+    
+                                onInvalid={(e) => {
+                                    if (e.target.validity.valueMissing){
+                                        return e.target.setCustomValidity("Prašome įveti elektroninio pašto adresą");
+                                    }
+                                    else if (e.target.validity.patternMismatch){
+                                        return e.target.setCustomValidity("Prašome įvesti elektroninio  pašto adresą tinkamu formatu");
+                                    }
+                                    
+                                    return e.preventDefault();
+                                }}
+                            />
+                        </FormGroup>
+
+                        <FormGroup controlId="birthDate">
+                            <ControlLabel>Gimimo data:</ControlLabel>
+                            <FormControl
+                                type="text"
+                                disabled={true}
+                                required
+                            />
+                        </FormGroup>
+
+                        <FormGroup controlId="healthInsurance" className="diflex">
+                            <ControlLabel className="margin-auto margin-right-min">Sveikatos draudimas:</ControlLabel>
+                            <div className="switch">
+                                        <FormControl 
+                                            type="checkbox"
+                                        />
+                                        <span className="slider round" onClick={(e) => {
+                                            let cb = document.getElementById(this.newWorkerPackage.formFields.healthInsurance);
+                                            cb.checked = !cb.checked;   
+                                        }}/>
+                                    </div>
+                        </FormGroup>
+
+                        <FormGroup controlId="livingIn">
+                            <ControlLabel>Gyvenamoji vieta:</ControlLabel>
+                            <FormControl
+                                type="text"
+                                maxLength="100"
+                            />
+                        </FormGroup>
+
+                        <FormGroup controlId="degree">
+                            <ControlLabel>Išsilavinimas:</ControlLabel>
+                            <FormControl
+                                type="text"
+                                maxLength="200"
+                            />
+                        </FormGroup>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button type="reset" onClick={this.newWorkerPackage.handler_onHide}>Atšauti</Button>
+                        <Button type="submit">Kitas</Button>
+                    </Modal.Footer>
+                </form>
+                <form onSubmit={this.newWorkerPackage.handler_onSubmit_worker} id={this.newWorkerPackage.formWorker} style={{display: this.state.modal_newWorker.modalPage == 1 ? "none" : "block"}}>
+                    <Modal.Header closeButton>
+                        <Modal.Title>
+                            Naujo vairuotojo sukūrimas
+                        </Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <FormGroup controlId={this.newWorkerPackage.formworkerFields.licenceValiFrom}>
+                            <ControlLabel>Vairuotojo teisės galija nuo:</ControlLabel>
+                            <FormControl 
+                                type="date"
+                            />
+                        </FormGroup>
+                        <FormGroup controlId={this.newWorkerPackage.formworkerFields.licenceValidTo}>
+                            <ControlLabel>Vairuotojo teisės galioja iki:</ControlLabel>
+                            <FormControl 
+                                type="date"
+                            />
+                        </FormGroup>
+                        <FormGroup controlId={this.newWorkerPackage.formworkerFields.drivingCategories}>
+                            <ControlLabel>Vairuotojo galimos vairuoti kategorijos</ControlLabel>
+                            <FormControl 
+                                componentClass="select"
+                                multiple={true}
+                            >
+                                {
+                                    this.state.modal_newWorker.drivingCategories.map((value, key) => {
+                                        return <option key={key} value={value.Kategorijos_id}>{value.kategorija}</option>
+                                    })
+                                }
+                            </FormControl>
+                        </FormGroup>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button onClick={this.newWorkerPackage.handler_previousPage}>Atgal</Button>
+                        <Button type="reset" onClick={this.newWorkerPackage.handler_onHide}>Atšauti</Button>
+                        <Button type="submit">Patvirtinti</Button>
+                    </Modal.Footer>
+                </form>
+            </Modal>
+        );
+
+        console.log(this.state.modal_newWorker);
         return(
             <div id="wraper">
                 <h2 className="Title">Vairuotojų duomenys</h2>
@@ -770,7 +1233,8 @@ class Drivers extends React.Component{
                             <th>Tabelio numeris</th>
                             <th>Vardas</th>
                             <th>Pavarde</th>
-                            <th>
+                            <th id="Insert">
+                                <a onClick={this.newWorkerPackage.handler_onShow}>+</a>
                             </th>
                         </tr>
                         {rows}
@@ -782,6 +1246,7 @@ class Drivers extends React.Component{
                 {driverTasks}
                 {ftp}
                 {Form}
+                {this.state.modal_newWorker.show ? form_createWorker : null}
             </div>
         );
     }

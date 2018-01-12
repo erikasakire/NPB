@@ -340,18 +340,40 @@ class Workers extends React.Component{
                 let keys = Object.keys(this.newWorkerPackage.formFields);
                 for(let i = 0; i < keys.length; i++){
                     let element =  document.getElementById(this.newWorkerPackage.formFields[keys[i]]); 
-                    data[keys[i]] = 
-                        element.type == "checkbox" ?
-                        element.checked :
-                        element.value;
+                    switch(element.type){
+                        case "checkbox":
+                            data[keys[i]] = element.checked;
+                            break;
+                        case "select":
+                            data[keys[i]] = [];
+                            for(let j = 0; j < element.options.length; j++){
+                                if (element.options[j].selected){
+                                    data[keys[i]].push(element.options[j].value);
+                                }
+                            }
+                            break;
+                        default:
+                            data[keys[i]] = element.value;
+                    }
                 }
                 keys = Object.keys(this.newWorkerPackage.formworkerFields);
                 for(let i = 0; i < keys.length; i++){
                     let element =  document.getElementById(this.newWorkerPackage.formworkerFields[keys[i]]); 
-                    data[keys[i]] = 
-                        element.type == "checkbox" ?
-                        element.checked :
-                        element.value;
+                    switch(element.type){
+                        case "checkbox":
+                            data[keys[i]] = element.checked;
+                            break;
+                        case "select-multiple":
+                            data[keys[i]] = [];
+                            for(let j = 0; j < element.options.length; j++){
+                                if (element.options[j].selected){
+                                    data[keys[i]].push(element.options[j].value);
+                                }
+                            }
+                            break;
+                        default:
+                            data[keys[i]] = element.value;
+                    }
                 }
 
                 return data;

@@ -3,7 +3,9 @@ import React from 'react'
 import { Modal, ModalHeader, ModalTitle, ModalFooter, ModalBody, Button, FormControl,FormGroup, ControlLabel, ModalDialog} from 'react-bootstrap';
 import '../styles/index.css';
 import '../styles/extra.css';
+import { connect } from "react-redux";
 import config from '../config.json';
+
 
 //import 'react-table/react-table.css'
 
@@ -408,224 +410,256 @@ class  Vechiles extends React.Component {
     }
         
     Modal(){
-        return (
-            <Modal show={this.state.showModal} onHide={()=>{this.setState({showModal:false})}} >
-                <form onSubmit={this.handleSubmit}>
-                    <ModalHeader closeButton>
-                        <ModalTitle> Įveskite transporto priemonės duomenis: </ModalTitle>
-                    </ModalHeader>
-                    <ModalBody>
-                    { this.state.error == undefined ? null : <p>{this.state.error}</p>}
-                        { this.state.update == true ?
-                            <FormGroup controlId='Valstybinis_nr' validationState={this.validate('Valstybinis_nr')}>
-                                <ControlLabel> Valstybinis numeris:</ControlLabel>
+        if (this.props.rangas <= 2)
+        {
+            return (
+                <Modal show={this.state.showModal} onHide={()=>{this.setState({showModal:false})}} >
+                    <form onSubmit={this.handleSubmit}>
+                        <ModalHeader closeButton>
+                            <ModalTitle> Įveskite transporto priemonės duomenis: </ModalTitle>
+                        </ModalHeader>
+                        <ModalBody>
+                        { this.state.error == undefined ? null : <p>{this.state.error}</p>}
+                            { this.state.update == true ?
+                                <FormGroup controlId='Valstybinis_nr' validationState={this.validate('Valstybinis_nr')}>
+                                    <ControlLabel> Valstybinis numeris:</ControlLabel>
+                                    <FormControl
+                                        type="text"
+                                        disabled= "true"
+                                        placeholder="pvz.: AAA-000"
+                                        value={this.state.form.Valstybinis_nr}
+                                        fieldname='Valstybinis_nr'
+                                        onChange={this.handleFormChange}
+                                    
+                                    />
+                                </FormGroup> :
+                                <FormGroup controlId='Valstybinis_nr' validationState={this.validate('Valstybinis_nr')}>
+                                    <ControlLabel> Valstybinis_nr:</ControlLabel>
+                                    <FormControl
+                                        type="text"
+                                        placeholder="pvz.: AAA-000"
+                                        value={this.state.form.Valstybinis_nr}
+                                        fieldname='Valstybinis_nr'
+                                        onChange={this.handleFormChange}
+                                    
+                                    />
+                                </FormGroup>
+                            }
+                            <FormGroup controlId='Marke' validationState={this.validate('Marke')}>
+                                <ControlLabel>Markė:</ControlLabel>
                                 <FormControl
                                     type="text"
-                                    disabled= "true"
-                                    placeholder="pvz.: AAA-000"
-                                    value={this.state.form.Valstybinis_nr}
-                                    fieldname='Valstybinis_nr'
-                                    onChange={this.handleFormChange}
-                                   
-                                />
-                            </FormGroup> :
-                            <FormGroup controlId='Valstybinis_nr' validationState={this.validate('Valstybinis_nr')}>
-                                <ControlLabel> Valstybinis_nr:</ControlLabel>
+                                    placeholder="pvz.: Volvo (užpildymas neprivalomas)"
+                                    value={this.state.form.Marke}
+                                    fieldname='Marke'
+                                    onChange={this.handleFormChange}/>
+                            </FormGroup>
+                            <FormGroup controlId='Modelis' validationState={this.validate('Modelis')}>
+                                <ControlLabel>Modelis:</ControlLabel>
                                 <FormControl
                                     type="text"
-                                    placeholder="pvz.: AAA-000"
-                                    value={this.state.form.Valstybinis_nr}
-                                    fieldname='Valstybinis_nr'
+                                    placeholder="pvz.: FH16"
+                                    value={this.state.form.Modelis}
+                                    fieldname='Modelis'
+                                    onChange={this.handleFormChange}/>
+                            </FormGroup>
+                            <FormGroup controlId='Galia' validationState={this.validate('Galia')}>
+                                <ControlLabel>Galia:</ControlLabel>
+                                <FormControl
+                                    type="number"
+                                    placeholder="pvz.: 510 (kW)"
+                                    value={this.state.form.Galia}
+                                    fieldname='Galia'
+                                    onChange={this.handleFormChange}/>
+                            </FormGroup>
+                            <FormGroup controlId='Variklio_darbinis_turis' validationState={this.validate('Variklio_darbinis_turis')}>
+                                <ControlLabel>Variklio darbinis tūris:</ControlLabel>
+                                <FormControl
+                                    type="number"
+                                    step="0.1"
+                                    placeholder="pvz.: 16.5 (litrų) (užpildymas neprivalomas)"
+                                    value={this.state.form.Variklio_darbinis_turis}
+                                    fieldname='Variklio_darbinis_turis'
+                                    onChange={this.handleFormChange}/>
+                            </FormGroup>
+                            <FormGroup controlId='Rida' validationState={this.validate('Rida')}>
+                                <ControlLabel>Rida:</ControlLabel>
+                                <FormControl
+                                    type="number"
+                                    placeholder="pvz.: 25454 (km)"  
+                                    value={this.state.form.Rida}
+                                    fieldname='Rida'
+                                    onChange={this.handleFormChange}/>
+                            </FormGroup>
+                            <FormGroup controlId='Draudimo_pr' validationState={this.validate('Draudimo_pr')}>
+                                <ControlLabel>Draudimo pradžia:</ControlLabel>
+                                <FormControl
+                                    type="date"
+                                    value={this.state.form.Draudimo_pr.substring(0, 10)}
+                                    fieldname='Draudimo_pr'
+                                    onChange={this.handleFormChange}/>
+                            </FormGroup>
+                            <FormGroup controlId='Draudimo_pab' validationState={this.validate('Draudimo_pab')}>
+                                <ControlLabel>Draudimo pabaiga:</ControlLabel>
+                                <FormControl
+                                    type="date"
+                                    value={this.state.form.Draudimo_pab.substring(0, 10)}
+                                    fieldname='Draudimo_pab'
+                                    onChange={this.handleFormChange}/>
+                            </FormGroup>
+                            <FormGroup controlId='Apziuros_pr' validationState={this.validate('Apziuros_pr')}>
+                                <ControlLabel>Apžiūros pradžia:</ControlLabel>
+                                <FormControl
+                                    type="date"
+                                    value={this.state.form.Apziuros_pr.substring(0, 10)}
+                                    fieldname='Apziuros_pr'
                                     onChange={this.handleFormChange}
-                                   
                                 />
                             </FormGroup>
-                        }
-                        <FormGroup controlId='Marke' validationState={this.validate('Marke')}>
-                            <ControlLabel>Markė:</ControlLabel>
-                            <FormControl
-                                type="text"
-                                placeholder="pvz.: Volvo (užpildymas neprivalomas)"
-                                value={this.state.form.Marke}
-                                fieldname='Marke'
-                                onChange={this.handleFormChange}/>
-                        </FormGroup>
-                        <FormGroup controlId='Modelis' validationState={this.validate('Modelis')}>
-                            <ControlLabel>Modelis:</ControlLabel>
-                            <FormControl
-                                type="text"
-                                placeholder="pvz.: FH16"
-                                value={this.state.form.Modelis}
-                                fieldname='Modelis'
-                                onChange={this.handleFormChange}/>
-                        </FormGroup>
-                        <FormGroup controlId='Galia' validationState={this.validate('Galia')}>
-                            <ControlLabel>Galia:</ControlLabel>
-                            <FormControl
-                                type="number"
-                                placeholder="pvz.: 510 (kW)"
-                                value={this.state.form.Galia}
-                                fieldname='Galia'
-                                onChange={this.handleFormChange}/>
-                        </FormGroup>
-                        <FormGroup controlId='Variklio_darbinis_turis' validationState={this.validate('Variklio_darbinis_turis')}>
-                            <ControlLabel>Variklio darbinis tūris:</ControlLabel>
-                            <FormControl
-                                type="number"
-                                step="0.1"
-                                placeholder="pvz.: 16.5 (litrų) (užpildymas neprivalomas)"
-                                value={this.state.form.Variklio_darbinis_turis}
-                                fieldname='Variklio_darbinis_turis'
-                                onChange={this.handleFormChange}/>
-                        </FormGroup>
-                        <FormGroup controlId='Rida' validationState={this.validate('Rida')}>
-                            <ControlLabel>Rida:</ControlLabel>
-                            <FormControl
-                                type="number"
-                                placeholder="pvz.: 25454 (km)"  
-                                value={this.state.form.Rida}
-                                fieldname='Rida'
-                                onChange={this.handleFormChange}/>
-                        </FormGroup>
-                        <FormGroup controlId='Draudimo_pr' validationState={this.validate('Draudimo_pr')}>
-                            <ControlLabel>Draudimo pradžia:</ControlLabel>
-                            <FormControl
-                                type="date"
-                                value={this.state.form.Draudimo_pr.substring(0, 10)}
-                                fieldname='Draudimo_pr'
-                                onChange={this.handleFormChange}/>
-                        </FormGroup>
-                        <FormGroup controlId='Draudimo_pab' validationState={this.validate('Draudimo_pab')}>
-                            <ControlLabel>Draudimo pabaiga:</ControlLabel>
-                            <FormControl
-                                type="date"
-                                value={this.state.form.Draudimo_pab.substring(0, 10)}
-                                fieldname='Draudimo_pab'
-                                onChange={this.handleFormChange}/>
-                        </FormGroup>
-                        <FormGroup controlId='Apziuros_pr' validationState={this.validate('Apziuros_pr')}>
-                            <ControlLabel>Apžiūros pradžia:</ControlLabel>
-                            <FormControl
-                                type="date"
-                                value={this.state.form.Apziuros_pr.substring(0, 10)}
-                                fieldname='Apziuros_pr'
-                                onChange={this.handleFormChange}
-                            />
-                        </FormGroup>
-                        <FormGroup controlId='Apziuros_pab' validationState={this.validate('Apziuros_pab')}>
-                            <ControlLabel>Apžiūros pabaiga:</ControlLabel>
-                            <FormControl
-                                type="date"
-                                value={this.state.form.Apziuros_pab.substring(0, 10)}
-                                fieldname='Apziuros_pab'
-                                onChange={this.handleFormChange}/>
-                        </FormGroup>
-                        <FormGroup controlId='Pagaminimo_metai' validationState={this.validate('Pagaminimo_metai')}>
-                            <ControlLabel>Pagaminimo metai:</ControlLabel>
-                            <FormControl
-                                type="number"
-                                placeholder="pvz.: 2010"  
-                                value={this.state.form.Pagaminimo_metai}
-                                fieldname='Pagaminimo_metai'
-                                onChange={this.handleFormChange}/>
-                         </FormGroup>
-                         <FormGroup>
-                        <ControlLabel>Kuro tipas:</ControlLabel>
-                            <FormControl componentClass="select" placeholder="pasirinkite" fieldname= "Kuro_tipas" onChange={this.handleFormChange} defaultValue={this.state.form.Kuro_tipas}>
-                                <option value={'Dyzelinis'}>Dyzelinis</option>
-                                <option value={'Benzininis'}>Benzininis</option>
-                                <option value={'Elektrinis'}>Elektrinis</option>
-                                <option value={'Dyzelinis-Elektrinis'}>Dyzelinis-Elektrinis</option>
-                                <option value={'Benzininis-Elektrinis'}>Benzininis-Elektrinis</option>
-                            </FormControl>
-                         </FormGroup>
-                         <FormGroup controlId='Mase' validationState={this.validate('Mase')}>
-                            <ControlLabel>Masė be krovinio:</ControlLabel>
-                            <FormControl
-                                type="number"
-                                step="0.1"
-                                placeholder="pvz.: 77 (t)"  
-                                value={this.state.form.Mase}
-                                fieldname='Mase'
-                                onChange={this.handleFormChange}/>
-                        </FormGroup>
-                        <FormGroup controlId='Aukstis' validationState={this.validate('Aukstis')}>
-                            <ControlLabel>Aukštis:</ControlLabel>
-                            <FormControl
-                                type="number"
-                                step="0.01"
-                                placeholder="pvz.: 2.54 (m)"  
-                                value={this.state.form.Aukstis}
-                                fieldname='Aukstis'
-                                onChange={this.handleFormChange}/>
-                        </FormGroup>
-                        <FormGroup controlId='Plotis' validationState={this.validate('Plotis')}>
-                            <ControlLabel>Plotis:</ControlLabel>
-                            <FormControl
-                                type="number"
-                                step="0.01"
-                                placeholder="pvz.: 2.1 (m)"  
-                                value={this.state.form.Plotis}
-                                fieldname='Plotis'
-                                onChange={this.handleFormChange}/>
-                        </FormGroup>
-                        <FormGroup controlId='Didziausia_leidz_mase' validationState={this.validate('Didziausia_leidz_mase')}>
-                            <ControlLabel>Didžiausia leidžiama masė:</ControlLabel>
-                            <FormControl
-                                type="number"
-                                step="0.1"
-                                placeholder="pvz.: 130 (t)"  
-                                value={this.state.form.Didziausia_leidz_mase}
-                                fieldname='Didziausia_leidz_mase'
-                                onChange={this.handleFormChange}/>
-                        </FormGroup>
-                        <FormGroup controlId='Sed_vt_sk' validationState={this.validate('Sed_vt_sk')}>
-                            <ControlLabel>Sėdimų vietų skaičius:</ControlLabel>
-                            <FormControl
-                                type="number"
-                                placeholder="pvz.: 5 (užpildymas neprivalomas)"  
-                                value={this.state.form.Sed_vt_sk}
-                                fieldname='Sed_vt_sk'
-                                onChange={this.handleFormChange}/>
-                        </FormGroup>
-                        <FormGroup controlId='Spalva' validationState={this.validate('Spalva')}>
-                            <ControlLabel>Spalva:</ControlLabel>
-                            <FormControl
-                                type="text"
-                                placeholder="pvz.: raudona (užpildymas neprivalomas)"
-                                value={this.state.form.Spalva}
-                                fieldname='Spalva'
-                                onChange={this.handleFormChange}/>
-                        </FormGroup>
-                        <FormGroup>
-                        <ControlLabel>Transporto priemonės kategorija:</ControlLabel>
-                            <FormControl componentClass="select" placeholder="pasirinkite" fieldname= "Vairavimo_kate_id" onChange={this.handleFormChange} defaultValue={this.state.form.Vairavimo_kate_id}>
-                                {this.state.form == this.formInitialState ? null : //noretursi ne id o pavadinimo
-                                    <option value={this.state.form.Vairavimo_kate_id}>{this.state.form.Vair_Kategorija}</option>
-                                }
-                                {this.state.select_categories}
-                            </FormControl>
-                         </FormGroup>
-                        { this.state.update == true ?
+                            <FormGroup controlId='Apziuros_pab' validationState={this.validate('Apziuros_pab')}>
+                                <ControlLabel>Apžiūros pabaiga:</ControlLabel>
+                                <FormControl
+                                    type="date"
+                                    value={this.state.form.Apziuros_pab.substring(0, 10)}
+                                    fieldname='Apziuros_pab'
+                                    onChange={this.handleFormChange}/>
+                            </FormGroup>
+                            <FormGroup controlId='Pagaminimo_metai' validationState={this.validate('Pagaminimo_metai')}>
+                                <ControlLabel>Pagaminimo metai:</ControlLabel>
+                                <FormControl
+                                    type="number"
+                                    placeholder="pvz.: 2010"  
+                                    value={this.state.form.Pagaminimo_metai}
+                                    fieldname='Pagaminimo_metai'
+                                    onChange={this.handleFormChange}/>
+                            </FormGroup>
                             <FormGroup>
-                                <ControlLabel>Transporto priemonės būsena:</ControlLabel>
-                                <FormControl componentClass="select" placeholder="pasirinkite" fieldname= "Busenos_id" onChange={this.handleFormChange}>
-                                    {this.state.form == this.formInitialState ? null :
-                                        <option value={this.state.form.Busenos_id}>{this.state.form.Busena}</option>
-                                    }
-                                    {this.state.select_states}
+                            <ControlLabel>Kuro tipas:</ControlLabel>
+                                <FormControl componentClass="select" placeholder="pasirinkite" fieldname= "Kuro_tipas" onChange={this.handleFormChange} defaultValue={this.state.form.Kuro_tipas}>
+                                    <option value={'Dyzelinis'}>Dyzelinis</option>
+                                    <option value={'Benzininis'}>Benzininis</option>
+                                    <option value={'Elektrinis'}>Elektrinis</option>
+                                    <option value={'Dyzelinis-Elektrinis'}>Dyzelinis-Elektrinis</option>
+                                    <option value={'Benzininis-Elektrinis'}>Benzininis-Elektrinis</option>
                                 </FormControl>
-                            </FormGroup> :
-                            null
-                        }
+                            </FormGroup>
+                            <FormGroup controlId='Mase' validationState={this.validate('Mase')}>
+                                <ControlLabel>Masė be krovinio:</ControlLabel>
+                                <FormControl
+                                    type="number"
+                                    step="0.1"
+                                    placeholder="pvz.: 77 (t)"  
+                                    value={this.state.form.Mase}
+                                    fieldname='Mase'
+                                    onChange={this.handleFormChange}/>
+                            </FormGroup>
+                            <FormGroup controlId='Aukstis' validationState={this.validate('Aukstis')}>
+                                <ControlLabel>Aukštis:</ControlLabel>
+                                <FormControl
+                                    type="number"
+                                    step="0.01"
+                                    placeholder="pvz.: 2.54 (m)"  
+                                    value={this.state.form.Aukstis}
+                                    fieldname='Aukstis'
+                                    onChange={this.handleFormChange}/>
+                            </FormGroup>
+                            <FormGroup controlId='Plotis' validationState={this.validate('Plotis')}>
+                                <ControlLabel>Plotis:</ControlLabel>
+                                <FormControl
+                                    type="number"
+                                    step="0.01"
+                                    placeholder="pvz.: 2.1 (m)"  
+                                    value={this.state.form.Plotis}
+                                    fieldname='Plotis'
+                                    onChange={this.handleFormChange}/>
+                            </FormGroup>
+                            <FormGroup controlId='Didziausia_leidz_mase' validationState={this.validate('Didziausia_leidz_mase')}>
+                                <ControlLabel>Didžiausia leidžiama masė:</ControlLabel>
+                                <FormControl
+                                    type="number"
+                                    step="0.1"
+                                    placeholder="pvz.: 130 (t)"  
+                                    value={this.state.form.Didziausia_leidz_mase}
+                                    fieldname='Didziausia_leidz_mase'
+                                    onChange={this.handleFormChange}/>
+                            </FormGroup>
+                            <FormGroup controlId='Sed_vt_sk' validationState={this.validate('Sed_vt_sk')}>
+                                <ControlLabel>Sėdimų vietų skaičius:</ControlLabel>
+                                <FormControl
+                                    type="number"
+                                    placeholder="pvz.: 5 (užpildymas neprivalomas)"  
+                                    value={this.state.form.Sed_vt_sk}
+                                    fieldname='Sed_vt_sk'
+                                    onChange={this.handleFormChange}/>
+                            </FormGroup>
+                            <FormGroup controlId='Spalva' validationState={this.validate('Spalva')}>
+                                <ControlLabel>Spalva:</ControlLabel>
+                                <FormControl
+                                    type="text"
+                                    placeholder="pvz.: raudona (užpildymas neprivalomas)"
+                                    value={this.state.form.Spalva}
+                                    fieldname='Spalva'
+                                    onChange={this.handleFormChange}/>
+                            </FormGroup>
+                            <FormGroup>
+                            <ControlLabel>Transporto priemonės kategorija:</ControlLabel>
+                                <FormControl componentClass="select" placeholder="pasirinkite" fieldname= "Vairavimo_kate_id" onChange={this.handleFormChange} defaultValue={this.state.form.Vairavimo_kate_id}>
+                                    {this.state.form == this.formInitialState ? null : //noretursi ne id o pavadinimo
+                                        <option value={this.state.form.Vairavimo_kate_id}>{this.state.form.Vair_Kategorija}</option>
+                                    }
+                                    {this.state.select_categories}
+                                </FormControl>
+                            </FormGroup>
+                            { this.state.update == true ?
+                                <FormGroup>
+                                    <ControlLabel>Transporto priemonės būsena:</ControlLabel>
+                                    <FormControl componentClass="select" placeholder="pasirinkite" fieldname= "Busenos_id" onChange={this.handleFormChange}>
+                                        {this.state.form == this.formInitialState ? null :
+                                            <option value={this.state.form.Busenos_id}>{this.state.form.Busena}</option>
+                                        }
+                                        {this.state.select_states}
+                                    </FormControl>
+                                </FormGroup> :
+                                null
+                            }
 
-                    </ModalBody>
-                    <ModalFooter>
-                        <Button type="submit">Patvirtinti</Button>
-                    </ModalFooter>
-                </form>
-            </Modal>
-        );
+                        </ModalBody>
+                        <ModalFooter>
+                            <Button type="submit">Patvirtinti</Button>
+                        </ModalFooter>
+                    </form>
+                </Modal>
+            );
+        }
+        
+        return(
+            <Modal show={this.state.showModal} onHide={()=>{this.setState({showModal:false})}} >
+            <form onSubmit={this.handleSubmit}>
+                <ModalHeader closeButton>
+                    <ModalTitle> Įveskite transporto priemonės duomenis: </ModalTitle>
+                </ModalHeader>
+                <ModalBody>
+                { this.state.error == undefined ? null : <p>{this.state.error}</p>}
+                    { this.state.update == true ?
+                        <FormGroup>
+                            <ControlLabel>Transporto priemonės būsena:</ControlLabel>
+                            <FormControl componentClass="select" placeholder="pasirinkite" fieldname= "Busenos_id" onChange={this.handleFormChange}>
+                                {this.state.form == this.formInitialState ? null :
+                                    <option value={this.state.form.Busenos_id}>{this.state.form.Busena}</option>
+                                }
+                                {this.state.select_states}
+                            </FormControl>
+                        </FormGroup> :
+                        null
+                    }
+
+                </ModalBody>
+                <ModalFooter>
+                    <Button type="submit">Patvirtinti</Button>
+                </ModalFooter>
+            </form>
+        </Modal>
+        )
     }
 
     addError(m){
@@ -659,7 +693,7 @@ class  Vechiles extends React.Component {
         {
             let v = this.state.data.allStates[i];
             this.state.select_states.push(
-                <option key={i} value={v.Busenos_id}>
+                <option key={v.Tabelio_nr} value={v.Busenos_id}>
                     {v.Busena}
                 </option>
                 );
@@ -668,6 +702,25 @@ class  Vechiles extends React.Component {
         let carsRows = [];
         for (let i = 0; i < this.state.data.cars.length; i++){
             let car = this.state.data.cars[i];
+
+            let letEdit = "";
+            if((this.props.rangas) == 1 || (this.props.rangas) == 2 || (this.props.rangas) == 4)
+            {
+                letEdit =
+                (<a id="Button" update={car.Valstybinis_nr} onClick={this.updateData_OpenModal}>
+                    <span class="glyphicon glyphicon-info-sign"> </span>
+                </a>);
+            }
+
+            let letErase = "";
+            if((this.props.rangas) == 1 || (this.props.rangas) == 2)
+            {
+                letErase =
+                (<a id="Button" delete={car.Valstybinis_nr} onClick={this.deleteData}>
+                    <span class="glyphicon glyphicon-trash"> </span>
+                </a>);
+            }
+
             carsRows.push(
                 <tr>
                     <td>
@@ -693,12 +746,8 @@ class  Vechiles extends React.Component {
                     </td>
                     <td>
                         <span>
-                            <a id="RowButton" update={car.Valstybinis_nr} onClick={this.updateData_OpenModal}>
-                                <span class="glyphicon glyphicon-info-sign"> </span>
-                            </a>
-                            <a id="RowButton" delete={car.Valstybinis_nr} onClick={this.deleteData}>
-                                <span class="glyphicon glyphicon-trash"> </span>
-                            </a>
+                            {letEdit}
+                            {letErase}
                         </span>
                     </td>                    
                 </tr>
@@ -706,52 +755,56 @@ class  Vechiles extends React.Component {
         }
 
         return (
-            <div id="wraper">
-            <h2 style={{
-                    textAlign: "center",
-                    color: "#985E6D",
-                    paddingBottom: "50px"
-                }}>Transporto priemonės</h2>
-               
-                        <table style={{ width: "100%"}}>
-                            <thead>
-                                <tr>
-                                    <th>
-                                        Marke
-                                   </th>
-                                    <th>
-                                        Modelis
-                                    </th>
-                                    <th>
-                                        Galia
-                                    </th>
-                                    <th>
-                                        Variklio tūris
-                                    </th>
-                                    <th>
-                                        Aukštis
-                                    </th>
-                                    <th>
-                                        Plotis
-                                    </th>
-                                    <th>
-                                        Būsena
-                                    </th>
-                                    <th id="Insert">
-                                        <a onClick={this.OpenModal}>+</a>
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {carsRows}
-                            </tbody>
-                        </table>
-
-                {this.Modal()}
-
-            </div>
+            <div id="main" class="flex container">
+                <h1>Transporto priemonės</h1>
+                <table id="lentele">
+                    <thead>
+                        <tr>
+                            <th>
+                                Marke
+                            </th>
+                            <th>
+                                Modelis
+                            </th>
+                            <th>
+                                Galia
+                            </th>
+                            <th>
+                                Variklio tūris
+                            </th>
+                            <th>
+                                Aukštis
+                            </th>
+                            <th>
+                                Plotis
+                            </th>
+                            <th>
+                                Būsena
+                            </th>
+                            <th id="AddButton">
+                            {this.props.rangas <= 2 ? 
+                                <a onClick={this.OpenModal}>
+                                    <span class="glyphicon glyphicon-plus-sign"/>
+                                </a>
+                                : null 
+                            }    
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {carsRows}
+                    </tbody>
+                </table>
+            {this.Modal()}
+        </div>
         );
     }
 }
 
-export default Vechiles
+export default connect(
+    state => {
+        return {
+            rangas: state.user.rangas.id
+        }
+    }
+)(Vechiles);
