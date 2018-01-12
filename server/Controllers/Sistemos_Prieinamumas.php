@@ -210,18 +210,25 @@ class Sistemos_Prieinamumas extends Controller {
     public function Darbuotoju_Registravimas(Request $req, Response $res){
         switch($req->getRequestType()){
             case typesEnumerator::GET:{
-                return $this->GetPosibleRights($req->params["rangas"]);
+                if ($req->params["rangas"] == "kategorijos"){
+                    return $this->GetCategories();
+                }
+                else {
+                    return $this->GetPosibleRights($req->params["rangas"]);
+                }
             }
             case typesEnumerator::POST:{
+
+                $bd = explode("-", preg_replace("/ \/ /", "-", $req->body["birthDate"]));
+                $bd = $bd[2] . "-" . $bd[1] . "-" . $bd[0];
+                $username = strtolower(substr($req->body["name"], 0, 3) . substr($req->body["surname"], 0, 3) . substr($req->body["personId"], -2, 2));
+                $password = "laikinas";
+
                 switch($req->params["kategorija"]){
                     case 1:
                     case "darbuotojas":
-                    
-                        $username = substr($req->body["name"], 0, 3) . substr($req->body["surname"]) . substr($req->body["personId"], -2, 2);
-                        $password = "laikinas";
-
-                        $b = new Database();
-                        $result = $db->Transaction(
+                        $db = new Database();
+                        $result = $db->query_Query(
                             $this->NaujasAsmuo(
                                 $req->body["personId"],
                                 $req->body["name"],
@@ -232,20 +239,30 @@ class Sistemos_Prieinamumas extends Controller {
                                 $req->body["healthInsurance"],
                                 $req->body["livingIn"],
                                 $req->body["degree"]
-                            ),
+                            ));
+                            if (!$result){
+                                return $res->addResponseData("Neveikia asmuo: " . $db->error(), "message")->send(Response::BAD_REQUEST);
+                            }
+                        $result = $db->query_Query(
                             $this->NaujaRegistracija(
                                 $username,
                                 $password
-                            ),
+                            ));
+                            if (!$result){
+                                return $res->addResponseData("Neveikia registracija: " . $db->error(), "message")->send(Response::BAD_REQUEST);
+                            }
+                        $result = $db->query_Query(
                             $this->NaujasDarbuotojas(
                                 $req->body["dirbaNuo"],
                                 $req->body["etatas"],
                                 $req->body["rangas"],
                                 $req->body["personId"],
                                 $username
-                            )
-                        );
-                        
+                            ));
+                            if (!$result){
+                                return $res->addResponseData("Neveikia darbuotojas: " . $db->error(), "message")->send(Response::BAD_REQUEST);
+                            }
+
                         if ($result){
                             $res->send(Response::OK);
                         }
@@ -256,8 +273,67 @@ class Sistemos_Prieinamumas extends Controller {
                         break;
                     case 2:
                     case "vairuotojas":
+                        $db = new Database();
+
+                        $result = $db->query_Query(
+                            $this->NaujasAsmuo(
+                                $req->body["personId"],
+                                $req->body["name"],
+                                $req->body["surname"],
+                                $req->body["phone"],
+                                $req->body["email"],
+                                $bd,
+                                $req->body["healthInsurance"],
+                                $req->body["livingIn"],
+                                $req->body["degree"]
+                        ));
+                        if (!$result){
+                            return $res->addResponseData("Neveikia asmuo: " . $db->error(), "message")->send(Response::BAD_REQUEST);
+                        }
+
+                        $result = $db->query_Query(
+                            $this->NaujaRegistracija(
+                                $username,
+                                $password
+                        ));
+                        if (!$result){
+                            return $res->addResponseData("Neveikia registracija: " . $db->error(), "message")->send(Response::BAD_REQUEST);
+                        }
+
+                        $result = $db->query_Query(
+                            $this->NaujosVairuotojoTeises(
+                                $req->body["licenceValiFrom"],
+                                $req->body["licenceValidTo"]
+                        ));
+                        if (!$result){
+                            return $res->addResponseData("Neveikia teises: " . $db->error(), "message")->send(Response::BAD_REQUEST);
+                        }
+                        
+                        /** @var Number $licence - licence number*/
+                        $licence = $db->array_String("SELECT MAX(Numeris) AS c FROM vairuotoju_teises")[0]['c'];
+                        for($i = 0; $i < count($req->body["drivingCategories"]); $i++){
+                            $result = $db->query_Query(
+                                $this->VairuotojoKategorija(
+                                    $licence,
+                                    $req->body["drivingCategories"][$i]
+                            )); 
+                            if(!$result){
+                                return $res->addResponseData("Kategorijų klaida: " . $db->error(), "message")->send(Response::BAD_REQUEST);
+                            }
+                        }
+
+                        $result = $db->query_Query(
+                            $this->NaujasVairuotojas(
+                                $username,
+                                $req->body["personId"],
+                                $licence
+                        ));
+                        if (!$result){
+                            return $res->addResponseData("Vairuotojas nepridėtas. " . $db->error(), "message")->send(Response::BAD_REQUEST);
+                        }
                         break;
                     default:
+                        $res->addResponseData("Užklausa bloga", "message")->send(Response::BAD_REQUEST);
                         break;
                 }
             }
@@ -274,7 +350,7 @@ class Sistemos_Prieinamumas extends Controller {
                 `Asmuo_AsmensKodas`,
                 `Registracija_Prisijungimo_vardas`
             ) VALUES (
-                (SELECT MAX(Tabelio_nr) + 1 FROM `darbuotojas`),
+                (SELECT MAX(t1.Tabelio_nr) + 1 FROM `darbuotojas` AS t1),
                 ::dirbanuo,
                 ::etatas,
                 ::rangas,
@@ -289,107 +365,54 @@ class Sistemos_Prieinamumas extends Controller {
             "regist" => $username
         ));
     }
-    private function NaujasVairuotojas(){
-        $db = new Database();
-
-        $successful = $db->Transaction(array(
-            Query::generate('
-                INSERT INTO `asmuo`(
-                    `AsmensKodas`, 
-                    `Vardas`, 
-                    `Pavarde`, 
-                    `Telefono_nr`,
-                    `Epastas`,
-                    `Gyvenamoji_vieta`,
-                    `Gimimo_data`,
-                    `Issilavinimas`,
-                    `Sveikatos_draudimas`
-                ) VALUES (
-                    ::asmenskodas,
-                    ::vardas,
-                    ::pavarde,
-                    ::telefononr,
-                    ::epastas,
-                    ::gyvenamojivieta,
-                    ::gimimodata,
-                    ::issilavinimas,
-                    ::sveikatosdraudimas
-                )
-             ', array(
-                "asmenskodas" => $req->body['AsmensKodas'],
-                "vardas" => $req->body['Vardas'],
-                "pavarde" => $req->body['Pavarde'],
-                "telefononr" => $req->body['Tabelio_nr'],
-                "epastas" => $req->body['Epastas'],
-                "gyvenamojivieta" => $req->body['Gyvenamoji_vieta'],
-                "gimimodata" => $req->body['Gimimo_data'],
-                "issilavinimas" => $req->body['Issilavinimas'],
-                "sveikatosdraudimas" => $req->body['Sveikatos_draudimas'] ? 1 : 0,
-            )),
-            Query::generate('
-                INSERT INTO `registracija`(
-                    `Prisijungimo_vardas`, 
-                    `Slaptazodis`, 
-                    `Prisijungimo_klausimas`, 
-                    `Prisijungimo_atsakymas`
-                ) VALUES (
-                    ::regist, 
-                    ::pass, 
-                    ::question, 
-                    ::answer
-                )
-             ', array(
-                "regist" => $req->body['Vardas'],
-                "pass" => $req->body['Pavarde'],
-                "question" => "Kas aš",
-                "answer" => $req->body['Vardas'],
-            )),
-            Query::generate('
-                INSERT INTO `vairuotoju_teises`(`Numeris`, `Galioja_nuo`, `Galioja_iki`) VALUES (
-                    (SELECT MAX(a1.Numeris) + 1 FROM vairuotoju_teises AS a1),
-                    ::from, ::to
-                )
-            ', array(
-                "from" => (new DateTime())->format("Y-m-d"),
-                "to" => ((new DateTime())->add(new DateInterval("P2Y")))->formmat("Y-m-d")
-            )),
-            Query::generate('
-                INSERT INTO `vairuotojas`(
-                    `Tabelio_nr`, 
-                    `Vairavimo_stazas`,
-                    `Prasizengimu_sk`,
-                    `Profesine_kvalifikacija`, 
-                    `Technografo_kortele`,
-                    `Registracija_Prisijungimo_vardas`,
-                    `Asmuo_AsmensKodas`,
-                    `Vairuotoju_teises_Numeris`
-                ) VALUES (
-                    ::tabnr,
-                    ::dirbanuo,
-                    ::atlyginimas,
-                    ::etatas,
-                    ::stazas,
-                    ::rangas,
-                    ::asmenskodas,
-                    (SELECT MAX(Numeris) FROM vairuotoju_teises)
-                )
-             ', array(
-                "tabnr" => $req->body['Tabelio_nr'],
-                "dirbanuo" => $req->body['Vairavimo_stazas'],
-                "atlyginimas" => $req->body['Prasizengimu_sk'],
-                "etatas" => $req->body['Profesine_kvalifikacija'],
-                "stazas" => $req->body['Technografo_kortele'] ? 1 : 0,
-                "rangas" => $req->body['Vardas'],
-                "asmenskodas" => $req->body['AsmensKodas']
-            ))
+    private function NaujosVairuotojoTeises($validFrom, $validTo){
+        return Query::generate("
+            INSERT INTO `vairuotoju_teises`(
+                `Numeris`, 
+                `Galioja_nuo`, 
+                `Galioja_iki`
+            ) VALUES (
+                (SELECT MAX(t1.Numeris) + 1 FROM `vairuotoju_teises` AS t1),
+                ::2,
+                ::3
+            )
+         ", array(
+            "2" => $validFrom,
+            "3" => $validTo
         ));
-
-        if ($successful){
-            $res->send();        
-        }
-        else {
-            $res->send(Response::BAD_REQUEST);
-        }
+    }
+    private function VairuotojoKategorija($licenceNo, $category){
+        return Query::generate("
+            INSERT INTO `vairuotojo_kategorijos`(
+                `Vairuotoju_teises_Numeris`, 
+                `Vairavimo_kategorija_Kategorijos_id`
+            ) VALUES (
+                ::1,
+                ::2
+            )
+        ", array(
+            "1" => $licenceNo,
+            "2" => $category
+        ));
+    }
+    private function NaujasVairuotojas($username, $ak, $licence){
+        return Query::generate("
+            INSERT INTO `vairuotojas`(
+                `Tabelio_nr`, 
+                `Registracija_Prisijungimo_vardas`, 
+                `Asmuo_AsmensKodas`, 
+                `Vairuotoju_teises_Numeris`
+            ) VALUES (
+                (SELECT MAX(t1.Tabelio_nr) + 1 FROM `vairuotojas` AS t1),
+                ::2,
+                ::3,
+                ::4
+            )
+         ", array(
+            "2" => $username,
+            "3" => $ak,
+            "4" => $licence
+        ));
     }
     private function NaujasAsmuo($username, $name, $surname, $phone, $email, $bd, $hi, $livingIn = null, $degree = null){
         return Query::generate("
@@ -439,6 +462,23 @@ class Sistemos_Prieinamumas extends Controller {
             "1" => $username,
             "2" => hash("sha256",$password)
          ));
+    }
+    private function GetCategories(){
+        $db = new Database();
+        $res = new Response();
+
+        $result = $db->query_String("
+            SELECT 
+                `Kategorijos_id`, 
+                `kategorija` 
+            FROM `vairavimo_kategorija`
+        ");
+
+        if (!$result){
+            return $res->addResponseData("Nepavyko gauti kategorijų. ". $db->error(), "message")->send();
+        }
+
+        return $res->addResponseData($db->array_MysqliResult($result), "categories")->send();
     }
     #endregion
 
