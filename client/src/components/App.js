@@ -3,7 +3,7 @@ import React from 'react';
 class App extends React.Component {
     render() {
         return (
-        <div style={{ textAlign: "center"}}>
+        <div style={{ textAlign: "center", width: "100%"}}>
             <h2 style= {{color: "#985E6D"}}>Informacinė sistema, susijusi su logistikos procesų valdymu.</h2>
             <hr/>
             <h3>Mūsų grupę sudaro trys nariai: </h3>

@@ -258,7 +258,7 @@ class Produkcija extends React.Component {
     }
     TrinamLauk(e){
         let id = e.target.parentNode.attributes['delete'].nodeValue;
-        fetch('http://localhost:8081/api/produkcija/salinti', {
+        fetch(config.server + '/produkcija/salinti', {
             method: "POST",
             headers:{
                 "Accept": "application/json",
