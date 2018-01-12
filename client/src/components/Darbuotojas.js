@@ -1,4 +1,5 @@
 import React from 'react';
+import config from '../config.json';
 import { Modal, ModalHeader, ModalTitle, ModalFooter, ModalBody, Button, FormControl,FormGroup, ControlLabel} from 'react-bootstrap';
 import { Redirect } from "react-router-dom";
 import { connect } from "react-redux";
@@ -6,6 +7,8 @@ import { connect } from "react-redux";
 class Darbuotojas extends React.Component {
     constructor(props){
         super(props);
+
+        console.log('here');
 
         /** Saugoma esama būsena */
         this.state = {
@@ -21,7 +24,7 @@ class Darbuotojas extends React.Component {
         this.fetchData();
     }
     fetchData (){
-        fetch('http://localhost:8081/api/padaliniai/Darbuotojas/' + this.props.computedMatch.params.id, {
+        fetch(config.server + '/padaliniai/darbuotojas/' + this.props.computedMatch.params.id, {
             method: "GET"
         })
         .then(response => response.json())
@@ -125,4 +128,4 @@ export default connect(
         }
     }
 )
-Darbuotojas;
+(Darbuotojas);

@@ -110,29 +110,22 @@ class Produkcija extends Controller{
                     "kategorija"=>$req->body['Kategorija_Kategorija_id'],
                 ));
 
+            $result = $db->query_String("INSERT INTO `padalinio_produktas`(
+                `Kiekis`, 
+                `Produktas_Barkodas`, 
+                `Padalinys_Inventorinis_numeris`) 
+            VALUES (
+                ::kiekis,
+                ::barkodas,
+                ::invNumeris)", array(
+                    "kiekis"=>$req->body['Kiekis'],
+                    "barkodas"=>$req->body['Barkodas'],
+                    "invNumeris"=>$req->body['Padalinys_id']
+                ));
         if($result){
             $res->send();
         }
-    }
-
-    public function PridetiProduktaIpadalini (Request $req, Response $res){
-        $db = new Database();
-        $result = $db->query_String("INSERT INTO `padalinio_produktas`(
-            `Kiekis`, 
-            `Produktas_Barkodas`, 
-            `Padalinys_Inventorinis_numeris`) 
-        VALUES (
-            ::kiekis,
-            ::barkodas,
-            ::invNumeris)", array(
-                "kiekis"=>$req->body['kiekis'],
-                "barkodas"=>$req->body['barkodas'],
-                "invNumeris"=>$req->body['invNumeris'],
-            ));
-
-        if($result){
-            $res->send();
-        }
+        
     }
 
     public function RedaguotiPrduktoInformacija (Request $req, Response $res){
@@ -287,8 +280,6 @@ class Produkcija extends Controller{
         if ($result){
             return $db->array_MysqliResult($result);
         }
-
-
 
     }
 }

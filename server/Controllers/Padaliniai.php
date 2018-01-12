@@ -18,9 +18,9 @@ class Padaliniai extends Controller{
         parent::__construct($params, $urlParams, $type);
 
         $this->get('/visi', [$this, 'visiPadaliniai']); 
-        $this->get('Darbuotojas/:id', [$this,'darbuotojoInformacija']);
+        $this->get('darbuotojas/:id', [$this,'darbuotojoInformacija']);
         $this->get('/:id', [$this,'Padalinys']);
-
+        $this->post('salintiProdukta/:id/:idd', [$this, 'pasalintiPrekeIsPadalinio']);
         $this->post('/prideti', [$this, 'PridetiNaujaPadalini']);
         $this->post('/redaguoti', [$this, 'RedaguotiEsamaPadalini']);
         $this->post('/salinti', [$this, 'PasalintiEsamaPadalini']);
@@ -61,7 +61,7 @@ class Padaliniai extends Controller{
                 $res->addResponseData($this->VisosPrekesPadalinyje($id), "produktaiPadal");
                 $res->addResponseData($this->DirbantysPadalinyje($id), "dirbantys");
                 $res->addResponseData($this->Samdymui(), "laisvi");
-                $res->addResponseData($duomenys, "data");     
+                $res->addResponseData($duomenys, "data");   
                 return $res->send();
             }
             else {
@@ -98,7 +98,8 @@ class Padaliniai extends Controller{
                 WHERE darbuotojas.Tabelio_nr 
                 NOT IN (SELECT dirbapadalinyje.Darbuotojas_Tabelio_nr FROM dirbapadalinyje)
                 AND darbuotojas.Tabelio_nr
-                NOT IN (SELECT padalinys.Redaktorius FROM padalinys)");
+                NOT IN (SELECT padalinys.Redaktorius FROM padalinys)
+                AND darbuotojas.Rangas_id = 2");
         return $duomenys;
     }
 
@@ -279,14 +280,12 @@ class Padaliniai extends Controller{
         $result = $db->numRows_String("
             SELECT * 
             FROM padalinio_produktas 
-            LEFT JOIN padalinys ON padalinys.Inventorinis_numeris = padalinio_produktas.Padalinys_Inventorinis_numeris 
-            WHERE padalinys.Inventorinis_numeris = ::invNumeris", array(
+            WHERE padalinio_produktas.Padalinys_Inventorinis_numeris = ::invNumeris", array(
                 "invNumeris" => $req->getBody('Inventorinis_numeris')
             ));
         if($result){
-            http_response_code(400);
             $res->addResponseData('Padalinyje yra ' . $result . ' prekių');
-            $res->send();
+            $res->send(Response::BAD_REQUEST);
         }
         else{
             $result = $db->Transaction(array(
@@ -303,14 +302,12 @@ class Padaliniai extends Controller{
 
             if ($result){
                 /** OK */
-                http_response_code(200);
-                $res->send();
+                $res->send(Response::OK);
             }
             else{
                 /** Error */
-                http_response_code(400);
                 $res->addResponseData('transakcijos erroras');                
-                $res->send();
+                $res->send(Response::BAD_REQUEST);
             }
         }
     }
@@ -361,6 +358,24 @@ class Padaliniai extends Controller{
             return $res->send();
         }
         http_response_code(400);
+    }
+    public function pasalintiPrekeIsPadalinio(Request $req, Response $res){
+            $db = new Database();
+            $duom = $db->query_String("DELETE FROM `padalinio_produktas` WHERE `Padalinys_Inventorinis_numeris` = ::Padalinys AND `Produktas_Barkodas` = ::Barkodas", 
+            array("Padalinys"=>$req->params['id'],
+                  "Barkodas"=>$req->params['idd']
+            ));
+        if($duom){
+            return $db->array_MysqliResult($duom);
+        }
+        else {
+            $res = new Response();
+            $res->addResponseData($db->error(), "log");
+            $res->addResponseData('Klaida vykdant užklausą.', "error");
+            return $res->send(Response::BAD_REQUEST);
+        }
+    $res->addResponseData('Padalinio id ir barkodas nesuteiktas.', "error");
+    return $res->send(Response::BAD_REQUEST);
     }
 }
 

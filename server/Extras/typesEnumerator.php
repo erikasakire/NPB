@@ -1,7 +1,7 @@
 <?php
 
 class typesEnumerator {
-    public const GET = "GET";
-    public const POST = "POST";
-    public const OPTIONS = "OPTIONS";
+    const GET = "GET";
+    const POST = "POST";
+    const OPTIONS = "OPTIONS";
 }

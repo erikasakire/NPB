@@ -1,8 +1,9 @@
 import React from 'react';
 import { Modal, ModalHeader, ModalTitle, ModalFooter, ModalBody, Button, FormControl,FormGroup, ControlLabel} from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { Link, withRouter } from 'react-router-dom';
 import { connect } from "react-redux";
-
+import {NotificationContainer, NotificationManager} from 'react-notifications';
+import 'react-notifications/lib/notifications.css';
 import config from '../config.json';
 
 class Padaliniai extends React.Component {
@@ -144,23 +145,29 @@ class Padaliniai extends React.Component {
 
             selectedFiltras: "",
             showModal2: false,
+            showModal3: false,
             formCurrentRedaktorius: null,
             current: undefined,
+            current2: undefined,
             form2: null,
             padal: false,
+            delete: false,
             error: undefined
         };
 
         this.validate = this.validate.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleSubmit2 = this.handleSubmit2.bind(this);
+        this.handleSubmit3 = this.handleSubmit3.bind(this);
         this.TrinamLauk = this.TrinamLauk.bind(this);
         this.addError = this.addError.bind(this);
         this.fetchData = this.fetchData.bind(this);
         this.OpenEditorModal = this.OpenEditorModal.bind(this);
+        this.OpenEditorModal2 = this.OpenEditorModal2.bind(this);
         this.handleFormChange2 = this.handleFormChange2.bind(this);
-
+        this.showNotification = this.showNotification.bind(this);
         this.selectedOptions = this.selectedOptions.bind(this);
+        this.successs = false;
     }
     
     componentWillMount(){
@@ -177,6 +184,15 @@ class Padaliniai extends React.Component {
             
         })
     }
+
+    showNotification(){
+        if (this.state.data.data.length == 0){
+            return 0;
+        }
+       
+        NotificationManager.warning("Kuriant naują padalinį, privalo būti laisvų darbuotojų, kurių šiuo metu nėra.");
+    }
+
 
     validate(e){
         let element = document.getElementById(e);
@@ -216,6 +232,21 @@ class Padaliniai extends React.Component {
             current: Object.assign({}, element),
             showModal2: true,
             form2: element.Redaktorius
+        });
+    }
+
+    OpenEditorModal2(e){
+        console.log(e.target);
+        this.setState({delete: true});        
+        let id = e.target.attributes['delete'].value;
+        let element = this.state.data.data.find((element) => {
+            if (element.Inventorinis_numeris == id){
+                return element;
+            }
+        })
+        this.setState({
+            current2: Object.assign({}, element),
+            showModal3: true
         });
     }
 
@@ -285,6 +316,7 @@ class Padaliniai extends React.Component {
         .then(response => {
             switch (response.status){
                 case 200: {
+                    NotificationManager.success(!this.state.modalData.update ?   "Padalinio informacija sėkmingai įterpta." : "Padalinio informacija sėkmingai atnaujinta." );
                     this.state.modalData.hide();
                     this.fetchData();
                     break;
@@ -294,6 +326,7 @@ class Padaliniai extends React.Component {
                     response.json().then(response => {
                         console.log(response.error);
                     });
+
                     break;
                 }
             }
@@ -307,8 +340,6 @@ class Padaliniai extends React.Component {
             return this.addError('Prašome pasirinkti redaktorių');
         }
         else{
-            console.log(this.state.form2);
-            console.log(this.state.current);
             fetch(config.server + '/padaliniai/samdyti', {
                 method: "POST",
                 headers: {
@@ -321,12 +352,17 @@ class Padaliniai extends React.Component {
                 })
             })
         .then(response => {
-            if(response.status == 200){
+            if(response.status == 200){                
                 this.setState({showModal2: false});
                 this.fetchData();
             }
         })
         }
+    }
+    handleSubmit3(e){
+        e.preventDefault();
+        this.TrinamLauk(e);
+        this.setState({showModal3: false});
     }
     addError(m){
         this.setState({
@@ -334,7 +370,8 @@ class Padaliniai extends React.Component {
         })
     }
     TrinamLauk(e){
-        let id = e.target.parentNode.attributes['delete'].nodeValue;
+        let id = this.state.current2.Inventorinis_numeris;
+        this.successs = true;
         fetch(config.server + '/padaliniai/salinti', {
             method: "POST",
             headers:{
@@ -348,6 +385,10 @@ class Padaliniai extends React.Component {
         .then(response => {
             if (response.status == 200) {
                 this.fetchData();
+                NotificationManager.success("Padalinys sėkmingai ištrintas.");
+            }
+            else if (response.status == 400){
+                NotificationManager.warning("Padadalinyje yra prekių. Tynimas negalimas!", null, 5000, ()=>{this.props.history.push("/padaliniai/" + id)});
             }
         })
     }
@@ -370,15 +411,14 @@ class Padaliniai extends React.Component {
                         }
                         {["1"].indexOf(this.props.rangas) != "-1" ? 
                         <td>
-                            <a id="ForButtons" delete={a.Inventorinis_numeris} onClick={this.TrinamLauk}><span className="glyphicon glyphicon-trash"></span></a> 
-                            <div className="vr">
-                            </div>
+                            <a id="ForButtons"  ><span className="glyphicon glyphicon-trash" onClick={this.OpenEditorModal2} delete={a.Inventorinis_numeris}></span></a> 
+                            <br/>
                            
                             <a className="ForButtons" id={a.Inventorinis_numeris} onClick={this.state.modalData.openAsUpdation}>Redaguoti</a>
                             </td> 
                          : null}
-                        {["1"].indexOf(this.props.rangas) != "-1" ? 
-                            <td><a style={{color: "#985E6D", textDecoration: "none",  cursor: "pointer"}} padal={a.Inventorinis_numeris} onClick={this.OpenEditorModal}>Pasirinkite Redaktorių</a></td> 
+                        {["1"].indexOf(this.props.rangas) != "-1" && this.state.data.samdyti.length > 0 ? 
+                            <td><a style={{color: "#985E6D", textDecoration: "none",  cursor: "pointer"}} padal={a.Inventorinis_numeris} onClick={this.OpenEditorModal}>Pakeiskite padalinio Redaktorių</a></td> 
                             : null
                             }
                     </tr>
@@ -405,7 +445,6 @@ class Padaliniai extends React.Component {
                 );
         }
 
-
         return(
             <div id="wraper">
                 <h2 style={{
@@ -425,12 +464,15 @@ class Padaliniai extends React.Component {
                             <th>Inventorinis numeris</th>
                             <th>Pavadinimas</th>
                             <th>Šalis</th>
-                            <th>Redaktorius <h5>(valdantis padalinio užsakymus)</h5></th>
+                            <th 
+                                class="popup" 
+                                onMouseOver={(e) => {document.getElementById("myPopup").classList.add("popuptext_visible")}}
+                                onMouseLeave={(e) => {document.getElementById("myPopup").classList.remove("popuptext_visible")}}    
+                            >Redaktorius <span class="popuptext" id="myPopup">Valdantis padalinį darbuotojas.</span> </th>
                             {["1"].indexOf(this.props.rangas) != "-1" ?
-                            <th id="Insert"><a onClick={this.state.modalData.openAsInsertion}>+</a></th> :
-                            null
-                            }
-                        </tr>
+                                <th id="Insert"><a onClick={this.state.data.samdyti.length > 0 ? this.state.modalData.openAsInsertion : this.showNotification}>+</a></th> : null}
+                            {["1"].indexOf(this.props.rangas) != "-1" && this.state.data.samdyti.length > 0 ? <th></th> : null}
+                         </tr>
                         { eilutes }
                     </tbody>
                 </table>
@@ -552,7 +594,7 @@ class Padaliniai extends React.Component {
                                     onChange={(e) => this.setState({ modalData: Object.assign({}, this.state.modalData, { values: Object.assign({}, this.state.modalData.values, { Platuma: e.target.value })})})}
                                     />
                              </FormGroup>
-                            { this.state.update == true ? null :
+                            { this.state.modalData.update == true ? null :
                                 <FormGroup controlId="redselect">
                                     <ControlLabel>Redaktorius:</ControlLabel>
                                     <FormControl componentClass="select" placeholder="pasirinkite" fieldname="Redaktorius">
@@ -586,16 +628,32 @@ class Padaliniai extends React.Component {
                             <Button type="submit">Patvirtinti</Button>
                         </ModalFooter>
                     </form>
-                </Modal>
+                </Modal>  
+                <Modal show={this.state.showModal3} onHide={()=>{this.setState({showModal3:false})}} >
+                   <form onSubmit={this.handleSubmit3}>
+                        <ModalHeader closeButton>
+                            <ModalTitle> Ar tikrai norite ištrinti šį padalinį? </ModalTitle>
+                        </ModalHeader>
+                        <ModalBody>
+                                <FormGroup>
+                                    <label> Ar tikrai norite ištrinti padalinį { this.state.current2 == undefined ? null : this.state.current2.padalinio_pavadinimas  + "? "}
+                                        šalis:{ this.state.current2 == undefined ? null : " " + this.state.current2.Salis}.</label>
+                                </FormGroup>
+                        </ModalBody>
+                        <ModalFooter>
+                            <Button type="submit">Taip</Button>
+                        </ModalFooter>
+                    </form>
+                </Modal>  
             </div>
         );
     }
 }
 
-export default connect(
+export default withRouter(connect(
     state => {
         return {
             rangas: state.user.rangas.id
         }
     }
-)(Padaliniai);
+)(Padaliniai));

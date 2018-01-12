@@ -4,8 +4,8 @@ import { Modal, ModalHeader, ModalTitle, ModalFooter, ModalBody, Button, FormCon
 import '../styles/index.css';
 import '../styles/extra.css';
 import { connect } from "react-redux";
+import config from '../config.json';
 
-//import config from '../config.json';
 
 //import 'react-table/react-table.css'
 
@@ -182,7 +182,7 @@ class  Vechiles extends React.Component {
     }
 
     fetchData (){
-        fetch('http://localhost:8081/api/Transporto_priemones/sarasas', {
+        fetch(config.server + '/Transporto_priemones/sarasas', {
             method: "GET"
         })
         .then(response => response.json())
@@ -242,7 +242,7 @@ class  Vechiles extends React.Component {
     deleteData(e){
         console.log(e); 
         let id = e.target.parentNode.attributes['delete'].nodeValue;
-        fetch('http://localhost:8081/api/Transporto_priemones/salinti', {
+        fetch(config.server + '/Transporto_priemones/salinti', {
             method: "POST",
             headers:{
                 "Accept": "application/json",
@@ -330,7 +330,7 @@ class  Vechiles extends React.Component {
         console.log(this.state.update);
         if(this.state.update == false){
             console.log(this.state.form);
-            fetch('http://localhost:8081/api/Transporto_priemones/prideti', {
+            fetch(config.server + '/Transporto_priemones/prideti', {
                 method: "POST",
                 headers: {
                     "Accept": "application/json",
@@ -371,7 +371,7 @@ class  Vechiles extends React.Component {
  
         }
         else{
-            fetch('http://localhost:8081/api/Transporto_priemones/redaguoti', {
+            fetch(config.server + '/Transporto_priemones/redaguoti', {
                 method: "POST",
                 headers: {
                     "Accept": "application/json",

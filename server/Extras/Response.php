@@ -1,13 +1,13 @@
 <?php
 
 class Response{
-    public const OK             = 200;
-    public const NO_CONTENT     = 204;
-    public const NOT_MODIFIED   = 304;
-    public const BAD_REQUEST    = 400;
-    public const NOT_AUTHORIZED = 401;
-    public const FORBIDDEN      = 403;
-    public const NOT_FOUND      = 404;
+    const OK             = 200;
+    const NO_CONTENT     = 204;
+    const NOT_MODIFIED   = 304;
+    const BAD_REQUEST    = 400;
+    const NOT_AUTHORIZED = 401;
+    const FORBIDDEN      = 403;
+    const NOT_FOUND      = 404;
 
     private $responseData;
     private $sent;
@@ -28,6 +28,7 @@ class Response{
         else {
             $this->responseData[$key] = $data;
         }
+        return $this;
     }
 
     /** Sends response back to cliet */
