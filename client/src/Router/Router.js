@@ -60,10 +60,10 @@ class Router extends React.Component {
                             }
                             <Link to='/padaliniai'>Padaliniai</Link>
                             <Link to='/produkcija'>Produkcija</Link>
-                            <Link to='/produkcija/ataskaita'>Produktų judėjimo ataskaita</Link>
+                            <PrivateLink to='/produkcija/ataskaita' userRights={[moderator, administrator]} >Produktų judėjimo ataskaita</PrivateLink>
                             <PrivateLink to='/workers' userRights={[moderator, administrator]}>Darbuotojai</PrivateLink>
                             <PrivateLink to='/drivers' userRights={[moderator, administrator]}>Vairuotojai</PrivateLink>
-                            <Link to='/orders'>Užsakymų vykdymas</Link>
+                            <PrivateLink to='/orders' userRights={[moderator, administrator]}>Užsakymų vykdymas</PrivateLink>
                             <Link to="/order">Užsakymai</Link>
                             <Link to="/vehicle">Transporto priemonės</Link>
                             <section className="flex"></section>

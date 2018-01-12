@@ -200,7 +200,7 @@ class Settings extends Component {
     render() {
         
         return (
-            <div style={{paddingLeft: "5px", paddingRight: "5px"}}>
+            <div style={{paddingLeft: "5px", paddingRight: "5px", width: "80%", margin: "auto"}}>
                 <h2 className="Title">Vartotojo nustatymai</h2>
                 <form onSubmit={this.onSubmitLogin} onReset={(e) => {this.setState({userFormData: Object.assign({}, this.state.userData)})}}>
                     <Panel collapsible expanded={this.state.openedPanel.userData} header={<p onClick={(e) => this.setState({openedPanel: {userData: true, userPassword: false, userQuestion: false}})}>Vartotojo duomenų nustatymai</p>} footer={[<Button type="reset" key="0" className="margin-right-min">Atšaukti</Button>, <Button type="submit" key="1">Patvirtinti</Button>]}>
