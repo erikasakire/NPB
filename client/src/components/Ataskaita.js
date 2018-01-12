@@ -78,16 +78,16 @@ class Ataskaita extends React.Component {
             }
         })
     }
+  
     render(){
         if (["1","2"].indexOf(this.props.rangas) == -1){
             return <Redirect to='/'/>
         }
-
-        if (this.state.data == null){
+  
+        if (this.state.data == null){  
             return (
-                <div class="PleaseWait">
-                    <p>Prašome palaukti</p>
-                </div>
+
+                <div  class="pre-loader"></div>
             );
         }
 

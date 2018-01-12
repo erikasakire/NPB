@@ -34,7 +34,7 @@ class Padalinys extends React.Component {
         this.fetchData();
     }
     fetchData (){
-        fetch(config.server + '/padaliniai/' + this.props.computedMatch.params.id, {
+        fetch(config.server + '/padaliniai/' + this.props.match.params.id, {
             method: "GET"
         })
         .then(response => response.json())
@@ -143,13 +143,19 @@ class Padalinys extends React.Component {
         })
     }
     render(){
+        if (this.state.data.data.length == 0 ){
+            return (
+                <div class="pre-loader"></div>
+            );
+        }
+
         let padaliniai = [];
         let produktai = [];
         let tiekimas = '';
         let dirbantys = [];
         let samd= [];
         let padal = '';
-        for(let i = 0; i< this.state.data.data.length; i++){
+        for(let i = 0; i < this.state.data.data.length; i++){
             let b = this.state.data.data[i];
             padal=b.Inventorinis_numeris;
             padaliniai.push(

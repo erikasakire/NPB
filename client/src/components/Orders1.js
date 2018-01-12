@@ -608,6 +608,35 @@ class  Orders extends React.Component {
     }
 
     render() {
+        if (this.state.data.data.length == 0){
+            return (
+                <div class="pre-loader"></div>
+            );
+        }
+        /*this.state.select_categories=[<option value="" key={-1}>Visos vairavimo kategorijos</option>];
+        this.state.select_states=[<option value="" key={-1}>Visos būsenos</option>];*/
+/*
+        for (let i = 0; i <this.state.data.data.length; i++)
+        {
+            let v = this.state.data.allCategories[i];
+            this.state.select_categories.push(
+                <option key={i} value={v.Kategorijos_id}>
+                    {v.kategorija}
+                </option>
+                );
+        }
+
+        for (let i = 0; i <this.state.data.allStates.length; i++)
+        {
+            let v = this.state.data.allStates[i];
+            this.state.select_states.push(
+                <option key={i} value={v.Busenos_id}>
+                    {v.Busena}
+                </option>
+                );
+        }
+*/
+
         let ordersRows = [];
         for (let i = 0; i < this.state.data.data.length; i++){
             let order = this.state.data.data[i];
@@ -656,6 +685,7 @@ class  Orders extends React.Component {
         }
 
         return (
+
             <div id="main" class="flex container">
                 <h1>Užsakymai</h1>
                 <table id="lentele">
@@ -696,6 +726,7 @@ class  Orders extends React.Component {
                         {ordersRows}
                     </tbody>
                 </table>
+
 
                 {this.Modal()}
 

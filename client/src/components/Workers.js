@@ -549,7 +549,11 @@ class Workers extends React.Component{
         if (["1", "2"].indexOf(this.props.rangas) == -1){
             return <Redirect to='/'/>;
         }
-
+        if (!this.state.data.fetched ){
+            return (
+                <div class="pre-loader"></div>
+            );
+        }
         let rows = null;
         if(this.state.data.empty){
             if(this.state.data.fetched){

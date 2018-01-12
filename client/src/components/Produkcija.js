@@ -277,6 +277,11 @@ class Produkcija extends React.Component {
     }
 
     render(){
+        if (this.state.data.data.length == 0 ){
+            return (
+                <div class="pre-loader"></div>
+            );
+        }
         /** Formuojamas prekių sąrašas */
         let eilutes = [];
         for(let i = 0; i < this.state.data.data.length; i++){

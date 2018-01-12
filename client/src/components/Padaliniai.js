@@ -180,7 +180,6 @@ class Padaliniai extends React.Component {
         .then(response => response.json())
         .then(response => {
             this.setState({data: response});
-            console.log(response);
             
         })
     }
@@ -394,7 +393,12 @@ class Padaliniai extends React.Component {
     }
 
     render(){
-        
+        if (this.state.data.data.length == 0 ){
+            return (
+                <div class="pre-loader"></div>
+            );
+        }
+
         let eilutes = [];
         for(let i = 0; i < this.state.data.data.length; i++){
             let a = this.state.data.data[i];

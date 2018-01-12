@@ -669,6 +669,13 @@ class  Vechiles extends React.Component {
     }
 
     render() {
+
+        if (this.state.data.cars.length == 0 ){
+            return (
+                <div class="pre-loader"></div>
+            );
+        }
+
         this.state.select_categories=[<option value="" key={-1}>Visos vairavimo kategorijos</option>];
         this.state.select_states=[<option value="" key={-1}>Visos būsenos</option>];
 

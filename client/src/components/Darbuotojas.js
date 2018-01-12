@@ -24,18 +24,22 @@ class Darbuotojas extends React.Component {
         this.fetchData();
     }
     fetchData (){
-        fetch(config.server + '/padaliniai/darbuotojas/' + this.props.computedMatch.params.id, {
+        fetch(config.server + '/padaliniai/darbuotojas/' + this.props.match.params.id, {
             method: "GET"
         })
         .then(response => response.json())
         .then(response => {
             this.setState({data: response});
-            console.log(response);
         })
     }
 
     render(){
 
+        if (this.state.data.data.length == 0 ){
+            return (
+                <div class="pre-loader"></div>
+            );
+        }
         let eilutes = [];
         let padaliniai = [];
         let e = '';

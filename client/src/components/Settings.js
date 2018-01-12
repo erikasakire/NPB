@@ -198,6 +198,7 @@ class Settings extends Component {
         });
     }
     render() {
+        
         return (
             <div style={{paddingLeft: "5px", paddingRight: "5px"}}>
                 <h2 className="Title">Vartotojo nustatymai</h2>
